@@ -1,66 +1,81 @@
-import { useState } from 'react';
-import { LogIn } from 'lucide-react';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-export function Login() {
-  const [credentials, setCredentials] = useState({
-    email: '',
-    password: ''
-  });
+type LoginFormData = {
+  username: string;
+  password: string;
+};
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Aquí iría la lógica de autenticación
-    console.log('Login attempted with:', credentials);
+export const Login: React.FC = () => {
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async (data: LoginFormData) => {
+    setIsLoading(true);
+    try {
+      // Hardcoded credentials for demo purposes
+      if (data.username === 'admin' && data.password === 'admin123') {
+        toast.success('Login exitoso');
+        setTimeout(() => {
+          navigate('/admin/productos');  // This navigates after successful login
+        }, 1500);
+      } else {
+        toast.error('Credenciales inválidas');
+      }
+    } catch (error) {
+      toast.error('Error en el inicio de sesión');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-md w-full max-w-md p-8">
-        <div className="flex justify-center mb-8">
-          <div className="bg-blue-600 p-3 rounded-full">
-            <LogIn className="w-8 h-8 text-white" />
-          </div>
-        </div>
-        
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-8">
-          Panel de Administración
-        </h1>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Correo Electrónico
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              Usuario
             </label>
             <input
-              type="email"
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              value={credentials.email}
-              onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+              type="text"
+              {...register('username', { required: 'El usuario es requerido' })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              placeholder="Ingrese su usuario"
             />
+            {errors.username && (
+              <p className="mt-1 text-sm text-red-500">{errors.username.message}</p>
+            )}
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Contraseña
             </label>
             <input
               type="password"
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              value={credentials.password}
-              onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+              {...register('password', { required: 'La contraseña es requerida' })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              placeholder="Ingrese su contraseña"
             />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+            )}
           </div>
-
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            Iniciar Sesión
+            {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>
         </form>
+        <ToastContainer position="top-right" autoClose={2000} />
       </div>
     </div>
   );
-}
+};

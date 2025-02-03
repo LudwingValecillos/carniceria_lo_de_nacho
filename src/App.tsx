@@ -6,6 +6,7 @@ import { ProductCard } from './components/ProductCard';
 import { Cart } from './components/Cart';
 import { Product, CartItem } from './types';
 import { Search, Menu, MessageCircle } from 'lucide-react';
+import { AdminProducts } from './pages/AdminProducts';
 
 // Simulated product data
 import { products } from './data/products';
@@ -137,6 +138,7 @@ const App: React.FC = () => {
               </main>
             </>
           } />
+          <Route path="/admin/productos" element={<AdminProducts />} />
           <Route path="/nosotros" element={
             <div className="max-w-4xl mx-auto p-6">
               <h2 className="text-3xl font-bold mb-6">Sobre Nosotros</h2>
