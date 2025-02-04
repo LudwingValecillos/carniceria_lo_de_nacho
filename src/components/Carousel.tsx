@@ -5,7 +5,11 @@ import img2 from '../images/Post de instagram haz tu pedido a domicilio ilustrad
 
 const images = [img1, img2];
 
-export function Carousel() {
+interface CarouselProps {
+  showCarousel?: boolean;
+}
+
+export function Carousel({ showCarousel = true }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -17,6 +21,8 @@ export function Carousel() {
 
   const prev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   const next = () => setCurrentIndex((prev) => (prev + 1) % images.length);
+
+  if (!showCarousel) return null;
 
   return (
     <div className="relative h-[400px] w-full overflow-hidden">
