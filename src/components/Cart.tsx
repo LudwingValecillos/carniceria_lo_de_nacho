@@ -37,7 +37,7 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
       ).join('\n')}\n\n` +
       `*Total:* $${formatPrice(total)}`;
 
-    window.open(`https://wa.me/91173680952?text=${encodeURIComponent(message)}`);
+    window.open(`https://wa.me/91161450595?text=${encodeURIComponent(message)}`);
     setIsOpen(false);
     setShowCustomerForm(false);
   };

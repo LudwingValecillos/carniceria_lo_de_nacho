@@ -7,6 +7,7 @@ import { Cart } from './components/Cart';
 import { Product, CartItem } from './types';
 import { Search, Menu, MessageCircle } from 'lucide-react';
 import { useProductContext } from './context/ProductContext';
+import logo from './images/logo.jpg.png';
 
 const App: React.FC = () => {
   const { state, fetchProductsAction } = useProductContext(); // Use global state
@@ -70,7 +71,7 @@ const App: React.FC = () => {
   }, []);
 
   const handleWhatsAppContact = useCallback(() => {
-    window.open('https://wa.me/1234567890', '_blank');
+    window.open('https://wa.me/91161450595?text=Hola%20carnicería%20Lo%20De%20Nachos%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido.', '_blank');
   }, []);
 
   const toggleSidebar = useCallback(() => {
@@ -95,6 +96,7 @@ const App: React.FC = () => {
               <Menu className="w-6 h-6 text-blue-600" />
             </button>
             <h1 className="hidden md:block text-2xl font-bold text-red-600">Carnicería Lo De Nacho</h1>
+            <img src={logo} alt="" className="w-20 h-18 text-blue-600" />
           </div>
           <div className="flex-1 justify-center items-center max-w-xl mx-4">
             <div className="relative pr-16 md:pr-0">
@@ -185,7 +187,7 @@ const App: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Contacto</h3>
               <p className="text-sm text-gray-300">
-                Teléfono: +56 9 1234 5678
+                Teléfono: 11 6145-0595
                 <br />
                 Envios gratis a toda la zona.
               </p>
@@ -203,7 +205,7 @@ const App: React.FC = () => {
           </div>
           <div className="mt-8 border-t border-gray-700 pt-6 text-center">
             <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} Carnicería Lo De Nacho. Todos los derechos reservados.
+              &copy; {new Date().getFullYear()} Carnicería Lo De Nacho. Todos los derechos reservados.
             </p>
           </div>
         </div>
