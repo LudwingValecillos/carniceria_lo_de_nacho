@@ -89,23 +89,13 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
               </div>
 
               <div className="border-t border-gray-200">
-                <Link
-                  to="/nosotros"
-                  className="block px-4 py-3 text-lg hover:bg-gray-100"
-                  onClick={onClose}
-                >
-                  Nosotros
-                </Link>
-              </div>
-
-              <div className="border-t border-gray-200">
-                <Link
-                  to="/contacto"
+                <a
+                  href="https://wa.me/91161450595?text=Hola%2Cme%20gustar%C3%ADa%20hacer%20un%20pedido."
                   className="block px-4 py-3 text-lg hover:bg-gray-100"
                   onClick={onClose}
                 >
                   Contacto
-                </Link>
+                </a>
               </div>
             </div>
           </nav>
