@@ -4,12 +4,17 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App';
 import { Login } from './pages/Login';
 import { AdminProducts } from './pages/AdminProducts';
+import { ProductProvider } from './context/ProductContext'; // Add this import
 import './index.css';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: (
+      <ProductProvider>
+        <App />
+      </ProductProvider>
+    ),
     children: [
       {
         path: 'admin/productos',
