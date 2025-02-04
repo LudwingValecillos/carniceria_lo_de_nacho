@@ -1,57 +1,30 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { Carousel } from './components/Carousel';
 import { Sidebar } from './components/Sidebar';
 import { ProductCard } from './components/ProductCard';
 import { Cart } from './components/Cart';
 import { Product, CartItem } from './types';
 import { Search, Menu, MessageCircle } from 'lucide-react';
-import { AdminProducts } from './pages/AdminProducts';
-import fetchProducts from './data/api';
-
-// Simulated product data
-// import { products } from './data/products';
+import { useProductContext } from './context/ProductContext';
 
 const App: React.FC = () => {
+  const { state, fetchProductsAction } = useProductContext(); // Use global state
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-    // Cargar productos desde JSONBin
-    useEffect(() => {
-      const loadProducts = async () => {
-        try {
-          setIsLoading(true);
-          setError(null);
-          const data = await fetchProducts();
-          
-          console.log('Fetched Products:', data); // Debug log
-          
-          if (data && data.length > 0) {
-            setProducts(data);
-          } else {
-            setError('No se encontraron productos');
-          }
-        } catch (err) {
-          console.error('Error loading products:', err);
-          setError('Error al cargar los productos');
-        } finally {
-          setIsLoading(false);
-        }
-      };
+  // Fetch products on component mount
+  useEffect(() => {
+    fetchProductsAction();
+  }, []);
 
-      loadProducts();
-    }, []);
   // Memoize filtered products to prevent unnecessary recalculations
   const filteredProducts = useMemo(() => {
-    console.log('Filtering Products - Total Products:', products.length);
-    console.log('Current Products:', JSON.stringify(products)); // Deep log of products
+    console.log('Filtering Products - Total Products:', state.products.length);
     
-    const filtered = products.filter(product => {
+    return state.products.filter(product => {
       // Validate product object
       if (!product || !product.name || !product.category) {
         console.warn('Invalid product:', product);
@@ -63,12 +36,11 @@ const App: React.FC = () => {
       const matchesSearch = 
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.category.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+      
+      // Only show active products
+      return (product.active === true) && matchesCategory && matchesSearch;
     });
-    
-    console.log('Filtered Products Count:', filtered.length);
-    return filtered;
-  }, [products, selectedCategory, searchQuery]);
+  }, [state.products, selectedCategory, searchQuery]);
 
   // Memoize cart-related handlers to prevent unnecessary re-renders
   const handleAddToCart = useCallback((product: Product) => {
@@ -153,76 +125,44 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <div className="mt-16">
-        <Routes>
-          <Route path="/" element={
-            <>
-              {!selectedCategory && <Carousel />}
-              <main className="flex-1 p-6">
-                <div className="max-w-7xl mx-auto">
-                  {selectedCategory && (
-                    <div className="mb-6">
-                      <h2 className="text-2xl font-bold text-gray-800">
-                        Categoría: {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
-                      </h2>
-                    </div>
-                  )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {isLoading ? (
-                      
-                      <div className="flex-col gap-4 w-full flex items-center justify-center col-span-full">
-                        
-                        <div
-                          className="w-20 h-20 border-4 border-transparent text-blue-400 text-4xl animate-spin flex items-center justify-center border-t-blue-400 rounded-full"
-                        >
-                          <div
-                            className="w-16 h-16 border-4 border-transparent text-red-400 text-2xl animate-spin flex items-center justify-center border-t-red-400 rounded-full"
-                          ></div>
-                        </div>
-                      </div>
-                    ) : error ? (
-                      <div className="col-span-full flex justify-center items-center">
-                        <p className="text-xl text-red-600">{error}</p>
-                      </div>
-                    ) : filteredProducts.length > 0 ? (
-                      filteredProducts.map(product => {
-                        console.log('Rendering Product:', product); // Log each product being rendered
-                        return (
-                          <ProductCard
-                            key={product.id}
-                            product={product}
-                            onAddToCart={handleAddToCart}
-                          />
-                        );
-                      })
-                    ) : (
-                      <div className="col-span-full flex justify-center items-center">
-                        <p className="text-xl text-gray-600">No se encontraron productos</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </main>
-            </>
-          } />
-          <Route path="/admin/productos" element={<AdminProducts />} />
-          <Route path="/nosotros" element={
-            <div className="max-w-4xl mx-auto p-6">
-              <h2 className="text-3xl font-bold mb-6">Sobre Nosotros</h2>
-              <p className="text-lg mb-4">
-                Somos una carnicería con más de 30 años de experiencia...
-              </p>
-            </div>
-          } />
-          <Route path="/contacto" element={
-            <div className="max-w-4xl mx-auto p-6">
-              <h2 className="text-3xl font-bold mb-6">Contacto</h2>
-              <p className="text-lg mb-4">
-                Encuentranos en...
-              </p>
-            </div>
-          } />
-        </Routes>
+        <Outlet /> {/* This will render nested routes */}
       </div>
+
+      {/* Products Section */}
+      {/* Products Section */}
+<div className="flex-1 p-6">
+  <div className="max-w-7xl mx-auto">
+    {state.loading ? (
+      <div className="flex flex-col justify-center items-center ">
+        <h2 className="text-2xl font-bold text-red-600 text-center">Cargando productos...</h2>
+        <img 
+          src="https://img1.picmix.com/output/stamp/normal/7/3/8/2/1932837_7022c.gif" 
+          alt="Cargando productos" 
+          className="w-64 h-64 object-contain"
+        />
+      </div>
+    ) : state.error ? (
+      <div className="text-center text-red-500">
+        Error: {state.error}
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filteredProducts.map(product => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            onAddToCart={handleAddToCart}
+          />
+        ))}
+      </div>
+    )}
+    {filteredProducts.length === 0 && !state.loading && (
+      <div className="text-center text-gray-500 mt-8">
+        No se encontraron productos.
+      </div>
+    )}
+  </div>
+</div>
 
       {/* Fixed WhatsApp Button */}
       <button
@@ -234,29 +174,37 @@ const App: React.FC = () => {
 
       {/* Footer */}
       <footer className="bg-gray-800 text-white mt-auto py-8">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
+              <h3 className="text-lg font-semibold mb-4">Carnicería Lo De Nacho</h3>
+              <p className="text-sm text-gray-300">
+                Proveemos los mejores cortes de carne fresca y de alta calidad para tu hogar.
+              </p>
+            </div>
+            <div>
               <h3 className="text-lg font-semibold mb-4">Contacto</h3>
-              <a href="tel:+541161405595">Teléfono: 11 6145-0595</a>
-              <p>Dirección: Cayetano Beliera 5005, La Lonja,Pilar.</p>
+              <p className="text-sm text-gray-300">
+                Teléfono: +56 9 1234 5678
+                <br />
+                Email: contacto@carnicerianacho.cl
+              </p>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-4">Horarios</h3>
-              <p>Lunes a Sábados: 09:00 - 14:00 hs / 16:30 - 20:00 hs</p>
-              <p>Domingos: 09:00 - 13:30 hs</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Síguenos</h3>
-              <div className="flex space-x-4">
-                
-                <a href="https://www.instagram.com/lodenachocarniceria/" className="hover:text-blue-400">Instagram</a>
-               
-              </div>
+              <p className="text-sm text-gray-300">
+                Lunes a Viernes: 9:00 - 20:00
+                <br />
+                Sábados: 9:00 - 15:00
+                <br />
+                Domingos: Cerrado
+              </p>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-gray-700 text-center">
-            <p>&copy; 2024 Carnicería Lo de Nacho. Todos los derechos reservados.</p>
+          <div className="mt-8 border-t border-gray-700 pt-6 text-center">
+            <p className="text-sm text-gray-400">
+              © {new Date().getFullYear()} Carnicería Lo De Nacho. Todos los derechos reservados.
+            </p>
           </div>
         </div>
       </footer>
