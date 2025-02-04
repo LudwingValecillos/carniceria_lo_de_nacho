@@ -3,10 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import img1 from '../images/TATTOO.png';
 import img2 from '../images/Post de instagram haz tu pedido a domicilio ilustrado colorido naranja.png';
 
-const images = [
-  img1,
-img2,
-];
+const images = [img1, img2];
 
 export function Carousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -33,7 +30,7 @@ export function Carousel() {
           <img
             src={img}
             alt={`Slide ${index + 1}`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
         </div>
       ))}
