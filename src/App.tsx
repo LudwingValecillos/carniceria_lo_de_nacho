@@ -98,7 +98,7 @@ const App: React.FC = () => {
             <h1 className="hidden md:block text-2xl font-bold text-red-600">Carnicería Lo De Nacho</h1>
             <img src={logo} alt="" className="w-20 h-18 text-blue-600" />
           </div>
-          <div className="flex-1 justify-center items-center max-w-xl mx-4 md:mr-10">
+          <div className="flex-1 justify-center items-center max-w-xl mx-4 md:mr-24s">
             <div className="relative pr-16 md:pr-0">
               <input
                 type="text"
