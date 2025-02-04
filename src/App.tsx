@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Carousel } from './components/Carousel';
 import { Sidebar } from './components/Sidebar';
@@ -7,19 +7,57 @@ import { Cart } from './components/Cart';
 import { Product, CartItem } from './types';
 import { Search, Menu, MessageCircle } from 'lucide-react';
 import { AdminProducts } from './pages/AdminProducts';
+import fetchProducts from './data/api';
 
 // Simulated product data
-import { products } from './data/products';
+// import { products } from './data/products';
 
 const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+    // Cargar productos desde JSONBin
+    useEffect(() => {
+      const loadProducts = async () => {
+        try {
+          setIsLoading(true);
+          setError(null);
+          const data = await fetchProducts();
+          
+          console.log('Fetched Products:', data); // Debug log
+          
+          if (data && data.length > 0) {
+            setProducts(data);
+          } else {
+            setError('No se encontraron productos');
+          }
+        } catch (err) {
+          console.error('Error loading products:', err);
+          setError('Error al cargar los productos');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      loadProducts();
+    }, []);
   // Memoize filtered products to prevent unnecessary recalculations
   const filteredProducts = useMemo(() => {
-    return products.filter(product => {
+    console.log('Filtering Products - Total Products:', products.length);
+    console.log('Current Products:', JSON.stringify(products)); // Deep log of products
+    
+    const filtered = products.filter(product => {
+      // Validate product object
+      if (!product || !product.name || !product.category) {
+        console.warn('Invalid product:', product);
+        return false;
+      }
+
       const matchesCategory = !selectedCategory || 
         product.category.toLowerCase() === selectedCategory.toLowerCase();
       const matchesSearch = 
@@ -27,7 +65,10 @@ const App: React.FC = () => {
         product.category.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+    
+    console.log('Filtered Products Count:', filtered.length);
+    return filtered;
+  }, [products, selectedCategory, searchQuery]);
 
   // Memoize cart-related handlers to prevent unnecessary re-renders
   const handleAddToCart = useCallback((product: Product) => {
@@ -126,13 +167,38 @@ const App: React.FC = () => {
                     </div>
                   )}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredProducts.map(product => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        onAddToCart={handleAddToCart}
-                      />
-                    ))}
+                    {isLoading ? (
+                      
+                      <div className="flex-col gap-4 w-full flex items-center justify-center col-span-full">
+                        
+                        <div
+                          className="w-20 h-20 border-4 border-transparent text-blue-400 text-4xl animate-spin flex items-center justify-center border-t-blue-400 rounded-full"
+                        >
+                          <div
+                            className="w-16 h-16 border-4 border-transparent text-red-400 text-2xl animate-spin flex items-center justify-center border-t-red-400 rounded-full"
+                          ></div>
+                        </div>
+                      </div>
+                    ) : error ? (
+                      <div className="col-span-full flex justify-center items-center">
+                        <p className="text-xl text-red-600">{error}</p>
+                      </div>
+                    ) : filteredProducts.length > 0 ? (
+                      filteredProducts.map(product => {
+                        console.log('Rendering Product:', product); // Log each product being rendered
+                        return (
+                          <ProductCard
+                            key={product.id}
+                            product={product}
+                            onAddToCart={handleAddToCart}
+                          />
+                        );
+                      })
+                    ) : (
+                      <div className="col-span-full flex justify-center items-center">
+                        <p className="text-xl text-gray-600">No se encontraron productos</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </main>
@@ -173,7 +239,6 @@ const App: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Contacto</h3>
               <a href="tel:+541161405595">Teléfono: 11 6145-0595</a>
-              <p>Email: info@carniceria.com</p>
               <p>Dirección: Cayetano Beliera 5005, La Lonja,Pilar.</p>
             </div>
             <div>
