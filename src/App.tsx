@@ -187,7 +187,7 @@ const App: React.FC = () => {
               <p className="text-sm text-gray-300">
                 Teléfono: +56 9 1234 5678
                 <br />
-                Email: contacto@carnicerianacho.cl
+                Envios gratis a toda la zona.
               </p>
             </div>
             <div>

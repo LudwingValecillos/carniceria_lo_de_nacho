@@ -19,7 +19,7 @@ const capitalizeFirstLetter = (string: string): string => {
 };
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden border-2 border-gray-300" >
       <img
         src={product.image}
         alt={product.name}

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import img1 from '../images/TATTOO.png';
+import img2 from '../images/Post de instagram haz tu pedido a domicilio ilustrado colorido naranja.png';
 
 const images = [
-  'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&q=80&w=1200',
-  'https://images.unsplash.com/photo-1553163147-622ab57be1c7?auto=format&fit=crop&q=80&w=1200',
-  'https://images.unsplash.com/photo-1542528180-a1208c5169a5?auto=format&fit=crop&q=80&w=1200'
+  img1,
+img2,
 ];
 
 export function Carousel() {
@@ -24,7 +25,7 @@ export function Carousel() {
     <div className="relative h-[400px] w-full overflow-hidden">
       {images.map((img, index) => (
         <div
-          key={img}
+          key={index}
           className={`absolute w-full h-full transition-transform duration-500 ease-in-out ${
             index === currentIndex ? 'translate-x-0' : 'translate-x-full'
           }`}
