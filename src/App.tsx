@@ -76,7 +76,7 @@ const App: React.FC = () => {
   }, []);
 
   const handleWhatsAppContact = useCallback(() => {
-    window.open('https://wa.me/91161450595?text=Hola%20carnicería%20Lo%20De%20Nachos%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido.', '_blank');
+    window.open('https://wa.me/91161450595?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido.', '_blank');
   }, []);
 
   const toggleSidebar = useCallback(() => {
@@ -85,7 +85,10 @@ const App: React.FC = () => {
 
   const handleCategorySelect = useCallback((category: string | null) => {
     setSelectedCategory(category);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const productSection = document.getElementById('product-section');
+    if (productSection) {
+      productSection.scrollIntoView({ behavior: 'smooth' });
+    }
   }, []);
 
   const location = useLocation();
@@ -145,7 +148,7 @@ const App: React.FC = () => {
 
       {/* Products Section */}
       {showSearch && (
-        <div className="flex-1 p-6">
+        <div id="product-section" className="flex-1 p-6">
           <div className="max-w-7xl mx-auto">
             {state.loading ? (
               <div className="flex flex-col justify-center items-center ">
