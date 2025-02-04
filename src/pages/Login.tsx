@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
@@ -14,11 +14,23 @@ export const Login: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Check if already logged in on mount
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (isLoggedIn) {
+      navigate('/admin/productos');
+    }
+  }, [navigate]);
+
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
       // Hardcoded credentials for demo purposes
       if (data.username === 'admin' && data.password === 'admin123') {
+        // Set login state in localStorage
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('username', data.username);
+        
         toast.success('Login exitoso');
         setTimeout(() => {
           navigate('/admin/productos');  // This navigates after successful login

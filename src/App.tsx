@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
-import { Carousel } from './components/Carousel';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { ProductCard } from './components/ProductCard';
 import { Cart } from './components/Cart';
@@ -8,6 +7,10 @@ import { Product, CartItem } from './types';
 import { Search, Menu, MessageCircle } from 'lucide-react';
 import { useProductContext } from './context/ProductContext';
 import logo from './images/logo.jpg.png';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { PrivateRoute } from './components/PrivateRoute';
+
 
 const App: React.FC = () => {
   const { state, fetchProductsAction } = useProductContext(); // Use global state
@@ -48,12 +51,14 @@ const App: React.FC = () => {
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
       if (existingItem) {
+        toast.info(`Se agregó 0.5 kg de ${product.name} al carrito`);
         return prev.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 0.5 }
             : item
         );
       }
+      toast.success(`Se agregó ${product.name} al carrito`);
       return [...prev, { ...product, quantity: 1 }];
     });
   }, []);
@@ -83,6 +88,8 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  const location = useLocation();
+  const showSearch = location.pathname !== '/admin/productos';
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Fixed Header */}
@@ -95,20 +102,26 @@ const App: React.FC = () => {
             >
               <Menu className="w-6 h-6 text-blue-600" />
             </button>
-            <h1 className="hidden md:block text-2xl font-bold text-red-600">Carnicería Lo De Nacho</h1>
-            <img src={logo} alt="" className="w-20 h-18 text-blue-600" />
+            <Link to="/" className='flex items-center'>
+            <h1 className="hidden md:block text-2xl font-bold text-red-600">
+              Carnicería Lo De Nacho
+            </h1>
+            <img src={logo} alt="Logo" className="w-20 h-18" />
+            </Link>
           </div>
           <div className="flex-1 justify-center items-center max-w-xl mx-4 md:mr-24">
-            <div className="relative pr-16 md:pr-0">
-              <input
-                type="text"
-                placeholder="Buscar productos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
+            {showSearch && (
+              <div className="relative pr-16 md:pr-0">
+                <input
+                  type="text"
+                  placeholder="Buscar productos..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              </div>
+            )}
           </div>
           <Cart
             items={cartItems}
@@ -131,40 +144,46 @@ const App: React.FC = () => {
       </div>
 
       {/* Products Section */}
-      {/* Products Section */}
-<div className="flex-1 p-6">
-  <div className="max-w-7xl mx-auto">
-    {state.loading ? (
-      <div className="flex flex-col justify-center items-center ">
-        <h2 className="text-2xl font-bold text-red-600 text-center">Cargando productos...</h2>
-        <img 
-          src="https://img1.picmix.com/output/stamp/normal/7/3/8/2/1932837_7022c.gif" 
-          alt="Cargando productos" 
-          className="w-64 h-64 object-contain"
-        />
-      </div>
-    ) : state.error ? (
-      <div className="text-center text-red-500">
-        Error: {state.error}
-      </div>
-    ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map(product => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onAddToCart={handleAddToCart}
-          />
-        ))}
-      </div>
-    )}
-    {filteredProducts.length === 0 && !state.loading && (
-      <div className="text-center text-gray-500 mt-8">
-        No se encontraron productos.
-      </div>
-    )}
-  </div>
-</div>
+      {showSearch && (
+        <div className="flex-1 p-6">
+          <div className="max-w-7xl mx-auto">
+            {state.loading ? (
+              <div className="flex flex-col justify-center items-center ">
+                <h2 className="text-2xl font-bold text-red-600 text-center">Cargando productos...</h2>
+                <img 
+                  src="https://img1.picmix.com/output/stamp/normal/7/3/8/2/1932837_7022c.gif" 
+                  alt="Cargando productos" 
+                  className="w-64 h-64 object-contain"
+                />
+              </div>
+            ) : state.error ? (
+              <div className="text-center text-red-500">
+                Error: {state.error}
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold mb-4 sm:mb-6 text-center border-b border-gray-300">
+                  { "Categoria: " + (selectedCategory ? selectedCategory : 'Productos')}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredProducts.map(product => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+            {filteredProducts.length === 0 && !state.loading && (
+              <div className="text-center text-gray-500 mt-8">
+                No se encontraron productos.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Fixed WhatsApp Button */}
       <button
@@ -210,6 +229,7 @@ const App: React.FC = () => {
           </div>
         </div>
       </footer>
+      <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
 };

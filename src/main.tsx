@@ -7,6 +7,7 @@ import { AdminProducts } from './pages/AdminProducts';
 import { ProductProvider } from './context/ProductContext';
 import { Carousel } from './components/Carousel';
 import { ProductCard } from './components/ProductCard';
+import { PrivateRoute } from './components/PrivateRoute';
 import './index.css';
 
 const router = createBrowserRouter([
@@ -32,8 +33,14 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: 'admin/productos',
-        element: <AdminProducts />
+        path: 'admin',
+        element: <PrivateRoute />,
+        children: [
+          {
+            path: 'productos',
+            element: <AdminProducts />
+          }
+        ]
       }
     ]
   },
