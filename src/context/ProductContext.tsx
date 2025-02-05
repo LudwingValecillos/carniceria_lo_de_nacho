@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, ReactNode, useContext, Dispatch } from 'react';
 import { Product } from '../types';
-import { updateProductPrice, toggleProductStatus, fetchProducts } from '../data/api';
+import { updateProductPrice, toggleProductStatus, fetchProducts, toggleProductOffer } from '../data/api';
 import { toast } from 'react-toastify';
 
 // Define the state type
@@ -23,7 +23,10 @@ type ProductAction =
   | { type: 'TOGGLE_PRODUCT_STATUS_FAILURE'; payload: string }
   | { type: 'UPDATE_PRODUCT_PRICE_START'; payload: { id: string; price: number } }
   | { type: 'UPDATE_PRODUCT_PRICE_SUCCESS'; payload: Product[] }
-  | { type: 'UPDATE_PRODUCT_PRICE_FAILURE'; payload: string };
+  | { type: 'UPDATE_PRODUCT_PRICE_FAILURE'; payload: string }
+  | { type: 'TOGGLE_PRODUCT_OFFER_START'; payload: string }
+  | { type: 'TOGGLE_PRODUCT_OFFER_SUCCESS'; payload: Product[] }
+  | { type: 'TOGGLE_PRODUCT_OFFER_FAILURE'; payload: string };
 
 // Define the context type
 interface ProductContextType {
@@ -32,6 +35,7 @@ interface ProductContextType {
   fetchProductsAction: () => Promise<void>;
   toggleProductStatusAction: (productId: string) => Promise<void>;
   updateProductPriceAction: (productId: string, newPrice: number) => Promise<void>;
+  toggleProductOfferAction: (productId: string) => Promise<void>;
 }
 
 // Reducer function
@@ -64,6 +68,12 @@ const productReducer = (state: ProductState, action: ProductAction): ProductStat
     case 'UPDATE_PRODUCT_PRICE_SUCCESS':
       return { ...state, products: action.payload, loading: false, error: null };
     case 'UPDATE_PRODUCT_PRICE_FAILURE':
+      return { ...state, loading: false, error: action.payload };
+    case 'TOGGLE_PRODUCT_OFFER_START':
+      return { ...state, loading: true, error: null };
+    case 'TOGGLE_PRODUCT_OFFER_SUCCESS':
+      return { ...state, products: action.payload, loading: false, error: null };
+    case 'TOGGLE_PRODUCT_OFFER_FAILURE':
       return { ...state, loading: false, error: action.payload };
     default:
       return state;
@@ -130,6 +140,24 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
+  // Toggle product offer status action
+  const toggleProductOfferAction = async (productId: string) => {
+    dispatch({ type: 'TOGGLE_PRODUCT_OFFER_START', payload: productId });
+    try {
+      const updatedProducts = await toggleProductOffer(productId);
+      dispatch({ type: 'TOGGLE_PRODUCT_OFFER_SUCCESS', payload: updatedProducts });
+      
+      const product = updatedProducts.find((p: Product) => p.id === productId);
+      toast.info(`Producto ${product?.name} ${product?.offer ? 'en oferta' : 'fuera de oferta'}`);
+    } catch (error) {
+      dispatch({ 
+        type: 'TOGGLE_PRODUCT_OFFER_FAILURE', 
+        payload: error instanceof Error ? error.message : 'Error toggling product offer status' 
+      });
+      toast.error('No se pudo cambiar el estado de oferta del producto');
+    }
+  };
+
   return (
     <ProductContext.Provider 
       value={{ 
@@ -137,7 +165,8 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         dispatch, 
         fetchProductsAction, 
         toggleProductStatusAction, 
-        updateProductPriceAction 
+        updateProductPriceAction,
+        toggleProductOfferAction
       }}
     >
       {children}

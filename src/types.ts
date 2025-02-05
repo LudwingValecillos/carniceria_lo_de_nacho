@@ -6,6 +6,7 @@ export interface Product {
   image: string;
   description?: string;
   active: boolean;
+  offer?: boolean;  // Added optional offer property
 }
 
 export interface CartItem extends Product {

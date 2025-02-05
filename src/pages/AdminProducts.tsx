@@ -2,11 +2,17 @@ import React, { useState, useMemo, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Product } from "../types";
-import { PencilIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, MagnifyingGlassIcon, SparklesIcon } from "@heroicons/react/24/solid";
 import { useProductContext } from "../context/ProductContext";
 
 export const AdminProducts: React.FC = () => {
-  const { state, toggleProductStatusAction, updateProductPriceAction, fetchProductsAction } = useProductContext();
+  const { 
+    state, 
+    toggleProductStatusAction, 
+    updateProductPriceAction, 
+    fetchProductsAction, 
+    toggleProductOfferAction 
+  } = useProductContext();
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -32,6 +38,10 @@ export const AdminProducts: React.FC = () => {
       updateProductPriceAction(productId, numericPrice);
       setEditingPriceId(null);
     }
+  };
+
+  const handleToggleProductOffer = (productId: string) => {
+    toggleProductOfferAction(productId);
   };
 
   const filteredProducts = useMemo(() => {
@@ -78,14 +88,24 @@ export const AdminProducts: React.FC = () => {
                 <h2 className="text-xs sm:text-2xl font-semibold truncate">
                   {product.name}
                 </h2>
-                <button
-                  onClick={() => handleToggleProductStatus(product.id)}
-                  className={`px-1 sm:px-2 py-1 rounded text-xs ${
-                    product.active ? "bg-red-500" : "bg-green-500"
-                  } text-white`}
-                >
-                  {product.active ? "Desactivar" : "Activar"}
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleToggleProductStatus(product.id)}
+                    className={`px-1 sm:px-2 py-1 rounded text-xs ${
+                      product.active ? "bg-red-500" : "bg-green-500"
+                    } text-white`}
+                  >
+                    {product.active ? "Desactivar" : "Activar"}
+                  </button>
+                  <button
+                    onClick={() => handleToggleProductOffer(product.id)}
+                    className={`px-1 sm:px-2 py-1 rounded text-xs ${
+                      product.offer ? "bg-yellow-500" : "bg-gray-300"
+                    } text-white`}
+                  >
+                    <SparklesIcon className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
               <div className="flex items-center justify-between">
                 {editingPriceId === product.id ? (
@@ -133,7 +153,8 @@ export const AdminProducts: React.FC = () => {
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
-                Estado: {product.active ? "Activo" : "Inactivo"}
+                Estado: {product.active ? "Activo" : "Inactivo"} 
+                {product.offer && " • En Oferta"}
               </p>
             </div>
           ))}

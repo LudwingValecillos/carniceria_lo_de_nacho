@@ -37,7 +37,9 @@ const App: React.FC = () => {
       }
 
       const matchesCategory = !selectedCategory || 
-        product.category.toLowerCase() === selectedCategory.toLowerCase();
+        (selectedCategory === 'Ofertas' 
+          ? product.offer === true 
+          : product.category.toLowerCase() === selectedCategory.toLowerCase());
       const matchesSearch = 
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.category.toLowerCase().includes(searchQuery.toLowerCase());

@@ -92,4 +92,35 @@ export const toggleProductStatus = async (productId: string) => {
   }
 };
 
+export const toggleProductOffer = async (productId: string) => {
+  try {
+    // Fetch current products
+    const response = await axios.get(API_URL, {
+      headers: {
+        'X-Master-Key': API_KEY,
+      }
+    });
+
+    // Toggle the specific product's offer status
+    const updatedProducts = response.data.record.map((product: Product) => 
+      product.id === productId 
+        ? { ...product, offer: !product.offer } 
+        : product
+    );
+
+    // Put the updated products back
+    await axios.put(API_URL, updatedProducts, {
+      headers: {
+        'X-Master-Key': API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return updatedProducts;
+  } catch (error) {
+    console.error('Error toggling product offer status:', error);
+    throw error;
+  }
+};
+
 export default fetchProducts;

@@ -21,6 +21,7 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
     'Anchuras',
     'Fiambres',
     'Bebidas',
+    'Ofertas'
   ];
 
   return (
