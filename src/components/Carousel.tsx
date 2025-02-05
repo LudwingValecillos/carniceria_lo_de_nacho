@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import img1 from '../images/TATTOO.png';
+import img1 from '../images/banner1.png';
 import img2 from '../images/banner2.png';
-import img3 from '../images/banner3.png'
-
-const images = [img1, img2, img3];
+import img3 from '../images/banner3.png';
+import img4 from '../images/banner4.png';
+const images = [img1, img2, img3, img4];
 
 interface CarouselProps {
   showCarousel?: boolean;
@@ -30,7 +30,7 @@ export function Carousel({ showCarousel = true }: CarouselProps) {
       {images.map((img, index) => (
         <div
           key={index}
-          className={`absolute w-full h-full transition-transform duration-500 ease-in-out ${
+          className={`absolute w-full h-full transition-transform duration-700 ease-in-out ${
             index === currentIndex ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
