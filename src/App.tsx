@@ -108,7 +108,7 @@ const App: React.FC = () => {
             >
               <Menu className="w-6 h-6 text-blue-600" />
             </button>
-            <Link to="/" className='flex items-center justify-center'>
+            <Link to="/" className='flex items-center justify-center' onClick={() => setSelectedCategory(null)}>
             <h1 className="hidden md:block text-2xl font-bold text-red-600">
               Carnicería Lo De Nacho
             </h1>

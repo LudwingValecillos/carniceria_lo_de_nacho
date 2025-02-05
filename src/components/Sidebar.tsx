@@ -14,6 +14,7 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
 
   const categories = [
     'Todos',
+    'Ofertas',
     'Vacuno',
     'Cerdo',
     'Pollo',
@@ -21,7 +22,7 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
     'Anchuras',
     'Fiambres',
     'Bebidas',
-    'Ofertas'
+    
   ];
 
   return (
