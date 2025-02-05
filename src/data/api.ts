@@ -70,15 +70,24 @@ export const toggleProductStatus = async (productId: string) => {
       }
     });
 
-    // Toggle the specific product's active status
-    const updatedProducts = response.data.record.map((product: Product) => 
-      product.id === productId 
-        ? { ...product, active: !product.active } 
-        : product
-    );
+    // Ensure products exist and have the correct type
+    const currentProducts = response.data.record || [];
+
+    // Toggle the specific product's active status with type safety
+    const updatedProducts = currentProducts.map((product: Product) => {
+      if (product.id === productId) {
+        // Ensure active is always a boolean, defaulting to true if not defined
+        const currentActiveStatus = product.active ?? true;
+        return { 
+          ...product, 
+          active: !currentActiveStatus 
+        };
+      }
+      return product;
+    });
 
     // Put the updated products back
-    await axios.put(API_URL, updatedProducts, {
+    await axios.put(API_URL, { record: updatedProducts }, {
       headers: {
         'X-Master-Key': API_KEY,
         'Content-Type': 'application/json'
