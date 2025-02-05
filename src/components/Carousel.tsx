@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import img1 from '../images/TATTOO.png';
-import img2 from '../images/Post de instagram haz tu pedido a domicilio ilustrado colorido naranja.png';
+import img2 from '../images/banner2.png';
+import img3 from '../images/banner3.png'
 
-const images = [img1, img2];
+const images = [img1, img2, img3];
 
 interface CarouselProps {
   showCarousel?: boolean;

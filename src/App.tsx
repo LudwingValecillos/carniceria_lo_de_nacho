@@ -6,7 +6,8 @@ import { Cart } from './components/Cart';
 import { Product, CartItem } from './types';
 import { Search, Menu, MessageCircle } from 'lucide-react';
 import { useProductContext } from './context/ProductContext';
-import logo from './images/logo.jpg.png';
+// import logo from './images/logo.jpg.png';
+import logo from './images/logolodenacho.png';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PrivateRoute } from './components/PrivateRoute';
@@ -105,11 +106,11 @@ const App: React.FC = () => {
             >
               <Menu className="w-6 h-6 text-blue-600" />
             </button>
-            <Link to="/" className='flex items-center'>
+            <Link to="/" className='flex items-center justify-center'>
             <h1 className="hidden md:block text-2xl font-bold text-red-600">
               Carnicería Lo De Nacho
             </h1>
-            <img src={logo} alt="Logo" className="w-20 h-18" />
+            <img src={logo} alt="Logo" className="w-20 h-18 ml-2" />
             </Link>
           </div>
           <div className="flex-1 justify-center items-center max-w-xl mx-4 md:mr-24">
