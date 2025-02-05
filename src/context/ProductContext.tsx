@@ -1,17 +1,29 @@
-import React, { createContext, useReducer, ReactNode, useContext, Dispatch } from 'react';
+import React, {
+  createContext,
+  useReducer,
+  ReactNode,
+  useContext,
+  Dispatch,
+  useCallback,
+} from 'react';
 import { Product } from '../types';
-import { updateProductPrice, toggleProductStatus, fetchProducts, toggleProductOffer } from '../data/api';
-import { toast } from 'react-toastify';
+import {
+  updateProductPrice,
+  toggleProductStatus,
+  fetchProducts,
+  toggleProductOffer,
+} from '../data/api';
+import { toast, Id, ToastOptions } from 'react-toastify';
 
-// Define the state type
+// Define el tipo de estado
 interface ProductState {
   products: Product[];
   loading: boolean;
   error: string | null;
 }
 
-// Define action types
-type ProductAction = 
+// Define los tipos de acciones
+type ProductAction =
   | { type: 'FETCH_PRODUCTS_START' }
   | { type: 'FETCH_PRODUCTS_SUCCESS'; payload: Product[] }
   | { type: 'FETCH_PRODUCTS_FAILURE'; payload: string }
@@ -28,7 +40,7 @@ type ProductAction =
   | { type: 'TOGGLE_PRODUCT_OFFER_SUCCESS'; payload: Product[] }
   | { type: 'TOGGLE_PRODUCT_OFFER_FAILURE'; payload: string };
 
-// Define the context type
+// Define el tipo del contexto
 interface ProductContextType {
   state: ProductState;
   dispatch: Dispatch<ProductAction>;
@@ -38,7 +50,7 @@ interface ProductContextType {
   toggleProductOfferAction: (productId: string) => Promise<void>;
 }
 
-// Reducer function
+// Reducer
 const productReducer = (state: ProductState, action: ProductAction): ProductState => {
   switch (action.type) {
     case 'FETCH_PRODUCTS_START':
@@ -50,12 +62,15 @@ const productReducer = (state: ProductState, action: ProductAction): ProductStat
     case 'ADD_PRODUCT':
       return {
         ...state,
-        products: [...state.products, { ...action.payload, id: action.payload.id || Date.now().toString() }]
+        products: [
+          ...state.products,
+          { ...action.payload, id: action.payload.id || Date.now().toString() },
+        ],
       };
     case 'REMOVE_PRODUCT':
       return {
         ...state,
-        products: state.products.filter(product => product.id !== action.payload)
+        products: state.products.filter((product) => product.id !== action.payload),
       };
     case 'TOGGLE_PRODUCT_STATUS_START':
       return { ...state, loading: true, error: null };
@@ -80,97 +95,125 @@ const productReducer = (state: ProductState, action: ProductAction): ProductStat
   }
 };
 
-// Create the context with a default value
-export const ProductContext = createContext<ProductContextType | undefined>(undefined);
+// Crea el contexto con un valor por defecto
+export const ProductContext = createContext<ProductContextType | undefined>(
+  undefined
+);
 
-// Create a provider component
+// Proveedor del contexto
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(productReducer, { 
-    products: [], 
-    loading: false, 
-    error: null 
+  const [state, dispatch] = useReducer(productReducer, {
+    products: [],
+    loading: false,
+    error: null,
   });
 
-  // Fetch products action
+  // Configuración común del toast
+  const toastConfig: ToastOptions = {
+    position: 'bottom-right',
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+  };
+
+  // Función centralizada de toast sin dismiss para evitar duplicados
+  const safeToast = useCallback(
+    (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+      switch (type) {
+        case 'success':
+          return toast.success(message, toastConfig);
+        case 'error':
+          return toast.error(message, toastConfig);
+        default:
+          return toast.info(message, toastConfig);
+      }
+    },
+    [toastConfig]
+  );
+
+  // Acción para obtener productos
   const fetchProductsAction = async () => {
     dispatch({ type: 'FETCH_PRODUCTS_START' });
     try {
       const products = await fetchProducts();
       dispatch({ type: 'FETCH_PRODUCTS_SUCCESS', payload: products });
     } catch (error) {
-      dispatch({ 
-        type: 'FETCH_PRODUCTS_FAILURE', 
-        payload: error instanceof Error ? error.message : 'Error fetching products' 
-      });
-      toast.error('No se pudieron cargar los productos');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error al cargar productos';
+      dispatch({ type: 'FETCH_PRODUCTS_FAILURE', payload: errorMessage });
+      safeToast('No se pudieron cargar los productos', 'error');
     }
   };
 
-  // Toggle product status action
+  // Acción para cambiar el estado del producto
   const toggleProductStatusAction = async (productId: string) => {
     dispatch({ type: 'TOGGLE_PRODUCT_STATUS_START', payload: productId });
     try {
       const updatedProducts = await toggleProductStatus(productId);
       dispatch({ type: 'TOGGLE_PRODUCT_STATUS_SUCCESS', payload: updatedProducts });
-      
+
       const product = updatedProducts.find((p: Product) => p.id === productId);
-      toast.info(`Producto ${product?.name} ${product?.active ? 'activado' : 'desactivado'}`);
+      const productName = product?.name || 'Producto';
+      const statusMessage = product?.active ? 'activado' : 'desactivado';
+
+      safeToast(`${productName} ${statusMessage}`, 'info');
     } catch (error) {
-      dispatch({ 
-        type: 'TOGGLE_PRODUCT_STATUS_FAILURE', 
-        payload: error instanceof Error ? error.message : 'Error toggling product status' 
-      });
-      toast.error('No se pudo cambiar el estado del producto');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error al cambiar estado';
+      dispatch({ type: 'TOGGLE_PRODUCT_STATUS_FAILURE', payload: errorMessage });
+      safeToast('No se pudo cambiar el estado del producto', 'error');
     }
   };
 
-  // Update product price action
+  // Acción para actualizar el precio del producto
   const updateProductPriceAction = async (productId: string, newPrice: number) => {
     dispatch({ type: 'UPDATE_PRODUCT_PRICE_START', payload: { id: productId, price: newPrice } });
     try {
       const updatedProducts = await updateProductPrice(productId, newPrice);
       dispatch({ type: 'UPDATE_PRODUCT_PRICE_SUCCESS', payload: updatedProducts });
-      toast.success('Precio de producto actualizado');
+      safeToast('Precio de producto actualizado', 'success');
     } catch (error) {
-      dispatch({ 
-        type: 'UPDATE_PRODUCT_PRICE_FAILURE', 
-        payload: error instanceof Error ? error.message : 'Error updating product price' 
-      });
-      toast.error('No se pudo actualizar el precio del producto');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error al actualizar precio';
+      dispatch({ type: 'UPDATE_PRODUCT_PRICE_FAILURE', payload: errorMessage });
+      safeToast('No se pudo actualizar el precio del producto', 'error');
     }
   };
 
-  // Toggle product offer status action
+  // Acción para cambiar el estado de oferta del producto
   const toggleProductOfferAction = async (productId: string) => {
     dispatch({ type: 'TOGGLE_PRODUCT_OFFER_START', payload: productId });
     try {
       const updatedProducts = await toggleProductOffer(productId);
       dispatch({ type: 'TOGGLE_PRODUCT_OFFER_SUCCESS', payload: updatedProducts });
-      
+
       const product = updatedProducts.find((p: Product) => p.id === productId);
       if (product) {
-        toast.info(`Producto ${product.name} ${product.offer ? 'en oferta' : 'fuera de oferta'}`);
+        const productName = product.name || 'Producto';
+        const offerMessage = product.offer ? 'en oferta' : 'fuera de oferta';
+        safeToast(`${productName} ${offerMessage}`, 'info');
       } else {
-        toast.error('No se encontró el producto');
+        safeToast('No se encontró el producto', 'error');
       }
     } catch (error) {
-      dispatch({ 
-        type: 'TOGGLE_PRODUCT_OFFER_FAILURE', 
-        payload: error instanceof Error ? error.message : 'Error toggling product offer status' 
-      });
-      toast.error('No se pudo cambiar el estado de oferta del producto');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error al cambiar estado de oferta';
+      dispatch({ type: 'TOGGLE_PRODUCT_OFFER_FAILURE', payload: errorMessage });
+      safeToast('No se pudo cambiar el estado de oferta del producto', 'error');
     }
   };
 
   return (
-    <ProductContext.Provider 
-      value={{ 
-        state, 
-        dispatch, 
-        fetchProductsAction, 
-        toggleProductStatusAction, 
+    <ProductContext.Provider
+      value={{
+        state,
+        dispatch,
+        fetchProductsAction,
+        toggleProductStatusAction,
         updateProductPriceAction,
-        toggleProductOfferAction
+        toggleProductOfferAction,
       }}
     >
       {children}
@@ -178,7 +221,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
   );
 };
 
-// Custom hook to use the ProductContext
+// Hook personalizado para usar el contexto
 export const useProductContext = () => {
   const context = useContext(ProductContext);
   if (context === undefined) {

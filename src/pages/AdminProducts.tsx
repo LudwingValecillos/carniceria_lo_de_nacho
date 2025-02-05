@@ -1,28 +1,28 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Product } from "../types";
-import { PencilIcon, MagnifyingGlassIcon, SparklesIcon } from "@heroicons/react/24/solid";
-import { useProductContext } from "../context/ProductContext";
+import React, { useState, useMemo, useEffect } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Product } from '../types';
+import { PencilIcon, MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { useProductContext } from '../context/ProductContext';
 
 export const AdminProducts: React.FC = () => {
-  const { 
-    state, 
-    toggleProductStatusAction, 
-    updateProductPriceAction, 
-    fetchProductsAction, 
-    toggleProductOfferAction 
+  const {
+    state,
+    toggleProductStatusAction,
+    updateProductPriceAction,
+    fetchProductsAction,
+    toggleProductOfferAction,
   } = useProductContext();
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
-  const [newPrice, setNewPrice] = useState<string>("");
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [newPrice, setNewPrice] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
     fetchProductsAction();
   }, []);
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString("es-CL", {
+    return price.toLocaleString('es-CL', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -33,7 +33,7 @@ export const AdminProducts: React.FC = () => {
   };
 
   const handleUpdateProductPrice = (productId: string) => {
-    const numericPrice = parseFloat(newPrice.replace(/\./g, ""));
+    const numericPrice = parseFloat(newPrice.replace(/\./g, ''));
     if (!isNaN(numericPrice)) {
       updateProductPriceAction(productId, numericPrice);
       setEditingPriceId(null);
@@ -59,7 +59,7 @@ export const AdminProducts: React.FC = () => {
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
         Administración de Productos
       </h1>
-      {/* Search Bar */}
+      {/* Barra de búsqueda */}
       <div className="mb-4 flex items-center">
         <div className="relative w-full max-w-md">
           <input
@@ -72,7 +72,7 @@ export const AdminProducts: React.FC = () => {
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
         </div>
       </div>
-      {/* Products Grid */}
+      {/* Grid de productos */}
       {state.loading ? (
         <div className="text-center">Cargando productos...</div>
       ) : (
@@ -80,9 +80,7 @@ export const AdminProducts: React.FC = () => {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className={`border rounded p-2 ${
-                product.active ? "bg-white" : "bg-gray-200"
-              } flex flex-col`}
+              className={`border rounded p-2 ${product.active ? 'bg-white' : 'bg-gray-200'} flex flex-col`}
             >
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-xs sm:text-2xl font-semibold truncate">
@@ -92,15 +90,15 @@ export const AdminProducts: React.FC = () => {
                   <button
                     onClick={() => handleToggleProductStatus(product.id)}
                     className={`px-1 sm:px-2 py-1 rounded text-xs ${
-                      product.active ? "bg-red-500" : "bg-green-500"
+                      product.active ? 'bg-red-500' : 'bg-green-500'
                     } text-white`}
                   >
-                    {product.active ? "Desactivar" : "Activar"}
+                    {product.active ? 'Desactivar' : 'Activar'}
                   </button>
                   <button
                     onClick={() => handleToggleProductOffer(product.id)}
                     className={`px-1 sm:px-2 py-1 rounded text-xs ${
-                      product.offer ? "bg-yellow-500" : "bg-gray-300"
+                      product.offer ? 'bg-yellow-500' : 'bg-gray-300'
                     } text-white`}
                   >
                     <SparklesIcon className="h-4 w-4" />
@@ -126,9 +124,9 @@ export const AdminProducts: React.FC = () => {
                   </div>
                 ) : (
                   <p className="font-bold text-xs sm:text-sm">
-                    $
+                    ${' '}
                     {formatPrice(
-                      typeof product.price === "number"
+                      typeof product.price === 'number'
                         ? product.price
                         : parseFloat(product.price)
                     )}
@@ -140,7 +138,7 @@ export const AdminProducts: React.FC = () => {
                       setEditingPriceId(product.id);
                       setNewPrice(
                         formatPrice(
-                          typeof product.price === "number"
+                          typeof product.price === 'number'
                             ? product.price
                             : parseFloat(product.price)
                         )
@@ -153,8 +151,7 @@ export const AdminProducts: React.FC = () => {
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
-                Estado: {product.active ? "Activo" : "Inactivo"} 
-                {product.offer && " • En Oferta"}
+                Estado: {product.active ? 'Activo' : 'Inactivo'} {product.offer && ' • En Oferta'}
               </p>
             </div>
           ))}
@@ -165,7 +162,6 @@ export const AdminProducts: React.FC = () => {
           No se encontraron productos que coincidan con la búsqueda.
         </div>
       )}
-      <ToastContainer />
     </div>
   );
 };

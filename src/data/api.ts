@@ -9,20 +9,29 @@ export const fetchProducts = async () => {
     const response = await axios.get(API_URL, {
       headers: {
         'X-Master-Key': API_KEY, // Solo si es necesario
-      }
+      },
     });
-    
-    // Transform the data to ensure it matches Product type
-    const transformedProducts = response.data.record.map((product: any) => ({
+
+    // Determina la fuente correcta de datos
+    const productsData =
+      response.data.record?.record || response.data.record || response.data || [];
+
+    // Asegura que productsData sea un array
+    const productsList = Array.isArray(productsData) ? productsData : [productsData];
+
+    // Transforma los datos para que coincidan con el tipo Product
+    const transformedProducts = productsList.map((product: any) => ({
       ...product,
-      id: product.id?.toString() || crypto.randomUUID(), // Ensure id is a string
-      price: typeof product.price === 'string' 
-        ? parseFloat(product.price.replace(/\./g, '')) 
-        : product.price,
-      active: product.active ?? true // Default to true if not specified
+      id: product.id?.toString() || crypto.randomUUID(), // Asegura que id sea string
+      price:
+        typeof product.price === 'string'
+          ? parseFloat(product.price.replace(/\./g, ''))
+          : product.price,
+      active: product.active ?? true, // Valor por defecto true si no se especifica
+      offer: product.offer ?? false, // Valor por defecto false si no se especifica
     }));
 
-    console.log('Transformed Products:', transformedProducts); // Additional debug log
+    console.log('Transformed Products:', transformedProducts);
     return transformedProducts;
   } catch (error) {
     console.error('Error al obtener los productos:', error);
@@ -32,26 +41,24 @@ export const fetchProducts = async () => {
 
 export const updateProductPrice = async (productId: string, newPrice: number) => {
   try {
-    // Fetch current products
+    // Obtiene los productos actuales
     const response = await axios.get(API_URL, {
       headers: {
         'X-Master-Key': API_KEY,
-      }
+      },
     });
 
-    // Update the specific product's price
-    const updatedProducts = response.data.record.map((product: Product) => 
-      product.id === productId 
-        ? { ...product, price: newPrice } 
-        : product
+    // Actualiza el precio del producto específico
+    const updatedProducts = response.data.record.map((product: Product) =>
+      product.id === productId ? { ...product, price: newPrice } : product
     );
 
-    // Put the updated products back
+    // Envía los productos actualizados
     await axios.put(API_URL, updatedProducts, {
       headers: {
         'X-Master-Key': API_KEY,
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     return updatedProducts;
@@ -63,35 +70,24 @@ export const updateProductPrice = async (productId: string, newPrice: number) =>
 
 export const toggleProductStatus = async (productId: string) => {
   try {
-    // Fetch current products
+    // Obtiene los productos actuales
     const response = await axios.get(API_URL, {
       headers: {
         'X-Master-Key': API_KEY,
-      }
+      },
     });
 
-    // Ensure products exist and have the correct type
-    const currentProducts = response.data.record || [];
+    // Cambia el estado (active) del producto específico
+    const updatedProducts = response.data.record.map((product: Product) =>
+      product.id === productId ? { ...product, active: !product.active } : product
+    );
 
-    // Toggle the specific product's active status with type safety
-    const updatedProducts = currentProducts.map((product: Product) => {
-      if (product.id === productId) {
-        // Ensure active is always a boolean, defaulting to true if not defined
-        const currentActiveStatus = product.active ?? true;
-        return { 
-          ...product, 
-          active: !currentActiveStatus 
-        };
-      }
-      return product;
-    });
-
-    // Put the updated products back
-    await axios.put(API_URL, { record: updatedProducts }, {
+    // Envía los productos actualizados
+    await axios.put(API_URL, updatedProducts, {
       headers: {
         'X-Master-Key': API_KEY,
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     return updatedProducts;
@@ -103,26 +99,35 @@ export const toggleProductStatus = async (productId: string) => {
 
 export const toggleProductOffer = async (productId: string) => {
   try {
-    // Fetch current products
+    // Obtiene los productos actuales
     const response = await axios.get(API_URL, {
       headers: {
         'X-Master-Key': API_KEY,
-      }
+      },
     });
 
-    // Toggle the specific product's offer status
-    const updatedProducts = response.data.record.map((product: Product) => 
-      product.id === productId 
-        ? { ...product, offer: !product.offer } 
-        : product
-    );
+    // Determina la fuente correcta de datos
+    const productsData =
+      response.data.record?.record || response.data.record || response.data || [];
 
-    // Put the updated products back
-    await axios.put(API_URL, updatedProducts, {
+    // Asegura que productsData sea un array
+    const currentProducts = Array.isArray(productsData) ? productsData : [productsData];
+
+    // Cambia el estado de oferta del producto
+    const updatedProducts = currentProducts.map((product: Product) => {
+      if (product.id === productId) {
+        const currentOfferStatus = product.offer ?? false;
+        return { ...product, offer: !currentOfferStatus };
+      }
+      return product;
+    });
+
+    // Envía los productos actualizados
+    await axios.put(API_URL, { record: updatedProducts }, {
       headers: {
         'X-Master-Key': API_KEY,
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     return updatedProducts;
