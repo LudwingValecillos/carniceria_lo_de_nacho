@@ -173,8 +173,8 @@ const App: React.FC = () => {
                  Categoria: {selectedCategory}
               </h2>
               : 
-              <div className="flex justify-center items-center flex-col space-y-4 pb-4">
-                <h2 className="text-2xl font-bold mb-4 sm:mb-6 text-center text-red-600">
+              <div className="flex justify-center space-y-2 items-center flex-col shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-4 sm:mb-6 rounded-xl p-2 border border-black">
+                <h2 className="text-2xl font-bold text-center text-red-600">
                   ¡Aprovecha todas las ofertas que tenemos para ti!
                 </h2>
                 <button onClick={() => handleCategorySelect('Ofertas')} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors">

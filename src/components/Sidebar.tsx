@@ -94,7 +94,9 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
                             onCategorySelect(category === 'Todos' ? null : category);
                             onClose();
                           }}
-                          className="w-full px-8 py-2 text-left hover:bg-gray-100 text-gray-700"
+                          className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${
+                            category === 'Ofertas' ? 'text-red-600 font-bold' : ''
+                          }`}
                         >
                           {category}
                         </button>
