@@ -168,9 +168,21 @@ const App: React.FC = () => {
               </div>
             ) : (
               <>
+              {selectedCategory !== null  ?
                 <h2 className="text-2xl font-bold mb-4 sm:mb-6 text-center border-b border-gray-300">
-                  { "Categoria: " + (selectedCategory ? selectedCategory : 'Productos')}
+                 Categoria: {selectedCategory}
+              </h2>
+              : 
+              <div className="flex justify-center items-center flex-col space-y-4 pb-4">
+                <h2 className="text-2xl font-bold mb-4 sm:mb-6 text-center text-red-600">
+                  ¡Aprovecha todas las ofertas que tenemos para ti!
                 </h2>
+                <button onClick={() => handleCategorySelect('Ofertas')} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors">
+                  Ver todas las ofertas
+                </button>
+                </div>
+              }
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredProducts.map(product => (
                     <ProductCard
