@@ -148,7 +148,11 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       dispatch({ type: 'TOGGLE_PRODUCT_OFFER_SUCCESS', payload: updatedProducts });
       
       const product = updatedProducts.find((p: Product) => p.id === productId);
-      toast.info(`Producto ${product?.name} ${product?.offer ? 'en oferta' : 'fuera de oferta'}`);
+      if (product) {
+        toast.info(`Producto ${product.name} ${product.offer ? 'en oferta' : 'fuera de oferta'}`);
+      } else {
+        toast.error('No se encontró el producto');
+      }
     } catch (error) {
       dispatch({ 
         type: 'TOGGLE_PRODUCT_OFFER_FAILURE', 
