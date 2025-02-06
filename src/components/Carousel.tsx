@@ -61,7 +61,7 @@ export function Carousel({ showCarousel = true }: CarouselProps) {
   if (!showCarousel) return null;
 
   return (
-    <div className="relative h-[400px] w-full overflow-hidden md:h-[600px]">
+    <div className="relative h-[400px] w-full overflow-hidden md:h-[500px]">
       {activeImages.map((img, index) => (
         <div
           key={index}
