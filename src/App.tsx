@@ -174,7 +174,7 @@ const App: React.FC = () => {
               : 
               <div className="flex justify-center space-y-2 items-center flex-col shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-4 sm:mb-6 rounded-xl p-2 border border-black">
                 <h2 className="font-lobster text-xl text-center text-red-600 md:text-4xl tracking-wide animate-pulse hover:scale-105 transition-transform duration-300 ease-in-out">
-                  ¡Aprovecha todas las ofertas que tenemos para ti!
+                  ¡Aprovecha todas las ofertas que tenemos para vos!
                 </h2>
                 <button onClick={() => handleCategorySelect('Ofertas')} className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors">
                   Ver todas las ofertas
