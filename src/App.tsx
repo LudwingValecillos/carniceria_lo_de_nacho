@@ -173,10 +173,10 @@ const App: React.FC = () => {
               </h2>
               : 
               <div className="flex justify-center space-y-2 items-center flex-col shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-4 sm:mb-6 rounded-xl p-2 border border-black">
-                <h2 className="font-lobster text-center text-red-600 md:text-4xl tracking-wide animate-pulse hover:scale-105 transition-transform duration-300 ease-in-out">
+                <h2 className="font-lobster text-xl text-center text-red-600 md:text-4xl tracking-wide animate-pulse hover:scale-105 transition-transform duration-300 ease-in-out">
                   ¡Aprovecha todas las ofertas que tenemos para ti!
                 </h2>
-                <button onClick={() => handleCategorySelect('Ofertas')} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors">
+                <button onClick={() => handleCategorySelect('Ofertas')} className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors">
                   Ver todas las ofertas
                 </button>
                 </div>
@@ -231,11 +231,9 @@ const App: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Horarios</h3>
               <p className="text-sm text-gray-300">
-                Lunes a Viernes: 9:00 - 20:00
+                Lunes a Sabado: 9:00 - 14:00 / 16:00 - 20:00    
                 <br />
-                Sábados: 9:00 - 15:00
-                <br />
-                Domingos: Cerrado
+                Domingos: 9:00 - 13:30
               </p>
             </div>
           </div>

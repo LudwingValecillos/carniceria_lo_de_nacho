@@ -119,7 +119,7 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
           </nav>
 
           <div className="p-4 border-t">
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-evenly space-x-4 ">
               <Link to="/login" className="text-gray-600 hover:text-pink-600"> <Settings /> </Link>
               <a href="#" className="text-gray-600 hover:text-pink-600">
                 Instagram
