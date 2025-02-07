@@ -48,13 +48,20 @@ export const updateProductPrice = async (productId: string, newPrice: number) =>
       },
     });
 
+    // Determina la fuente correcta de datos
+    const productsData =
+      response.data.record?.record || response.data.record || response.data || [];
+
+    // Asegura que productsData sea un array
+    const productsList = Array.isArray(productsData) ? productsData : [productsData];
+
     // Actualiza el precio del producto específico
-    const updatedProducts = response.data.record.map((product: Product) =>
+    const updatedProducts = productsList.map((product: Product) =>
       product.id === productId ? { ...product, price: newPrice } : product
     );
 
     // Envía los productos actualizados
-    await axios.put(API_URL, updatedProducts, {
+    await axios.put(API_URL, { record: updatedProducts }, {
       headers: {
         'X-Master-Key': API_KEY,
         'Content-Type': 'application/json',
