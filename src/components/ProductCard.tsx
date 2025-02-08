@@ -1,5 +1,5 @@
-import { Plus } from 'lucide-react';
-import { Product } from '../types';
+import { Plus } from "lucide-react";
+import { Product } from "../types";
 
 interface ProductCardProps {
   product: Product;
@@ -8,9 +8,9 @@ interface ProductCardProps {
 
 // Función para formatear precios con separadores de miles
 const formatPrice = (price: number): string => {
-  return price.toLocaleString('es-AR', {
+  return price.toLocaleString("es-AR", {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   });
 };
 
@@ -25,10 +25,10 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       <img
         src={product.image}
         alt={product.name}
-        className="w-full h-48 object-contain"  // Cambiado a object-contain
+        className="w-full h-48 object-contain" // Cambiado a object-contain
       />
       <div className="p-2 md:p-4">
-        <h3 className="text-lg font-semibold text-gray-800">
+        <h3 className="md:text-lg font-semibold text-gray-800">
           {capitalizeFirstLetter(product.name)}
         </h3>
         <div className="flex items-center justify-between">
