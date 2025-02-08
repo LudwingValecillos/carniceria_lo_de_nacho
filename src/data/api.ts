@@ -84,13 +84,20 @@ export const toggleProductStatus = async (productId: string) => {
       },
     });
 
+    // Determina la fuente correcta de datos
+    const productsData =
+      response.data.record?.record || response.data.record || response.data || [];
+
+    // Asegura que productsData sea un array
+    const productsList = Array.isArray(productsData) ? productsData : [productsData];
+
     // Cambia el estado (active) del producto específico
-    const updatedProducts = response.data.record.map((product: Product) =>
+    const updatedProducts = productsList.map((product: Product) =>
       product.id === productId ? { ...product, active: !product.active } : product
     );
 
     // Envía los productos actualizados
-    await axios.put(API_URL, updatedProducts, {
+    await axios.put(API_URL, { record: updatedProducts }, {
       headers: {
         'X-Master-Key': API_KEY,
         'Content-Type': 'application/json',
@@ -99,7 +106,7 @@ export const toggleProductStatus = async (productId: string) => {
 
     return updatedProducts;
   } catch (error) {
-    console.error('Error toggling product status:', error);
+    console.error('Error updating product status:', error);
     throw error;
   }
 };
