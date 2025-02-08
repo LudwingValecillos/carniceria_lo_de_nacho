@@ -16,6 +16,7 @@ export const AdminProducts: React.FC = () => {
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProductsAction();
@@ -45,10 +46,11 @@ export const AdminProducts: React.FC = () => {
   };
 
   const filteredProducts = useMemo(() => {
-    return state.products.filter((product) =>
+    return state.products.filter((product) => 
+      (selectedCategory === null || product.category === selectedCategory) &&
       product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [state.products, searchTerm]);
+  }, [state.products, searchTerm, selectedCategory]);
 
   if (state.error) {
     return <div className="text-center text-red-500">Error: {state.error}</div>;
@@ -59,8 +61,8 @@ export const AdminProducts: React.FC = () => {
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
         Administración de Productos
       </h1>
-      {/* Barra de búsqueda */}
-      <div className="mb-4 flex items-center">
+      {/* Barra de búsqueda y filtro de categoría */}
+      <div className="mb-4 flex items-center space-x-4">
         <div className="relative w-full max-w-md">
           <input
             type="text"
@@ -70,6 +72,29 @@ export const AdminProducts: React.FC = () => {
             className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        </div>
+        <div className="relative">
+          <select
+            value={selectedCategory || ''}
+            onChange={(e) => setSelectedCategory(e.target.value || null)}
+            className="w-full  py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos</option>
+            {[
+              'vacuno',
+              'cerdo',
+              'pollo',
+              'anchuras',
+              'fiambres',
+              'congelados',
+              'carbon',
+              'bebidas'
+            ].map((category) => (
+              <option key={category} value={category}>
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
       {/* Grid de productos */}
