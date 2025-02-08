@@ -18,9 +18,11 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
     'Vacuno',
     'Cerdo',
     'Pollo',
-    'Embutidos',
+    // 'Embutidos',
     'Anchuras',
     'Fiambres',
+    'Congelados',
+    'Carbon',
     'Bebidas',
     
   ];
