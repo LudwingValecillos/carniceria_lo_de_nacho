@@ -12,9 +12,12 @@ export const AdminProducts: React.FC = () => {
     updateProductPriceAction,
     fetchProductsAction,
     toggleProductOfferAction,
+    updateProductNameAction,
   } = useProductContext();
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
+  const [editingNameId, setEditingNameId] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState<string>('');
+  const [newName, setNewName] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -38,6 +41,13 @@ export const AdminProducts: React.FC = () => {
     if (!isNaN(numericPrice)) {
       updateProductPriceAction(productId, numericPrice);
       setEditingPriceId(null);
+    }
+  };
+
+  const handleUpdateProductName = (productId: string) => {
+    if (newName.trim()) {
+      updateProductNameAction(productId, newName.trim());
+      setEditingNameId(null);
     }
   };
 
@@ -107,10 +117,8 @@ export const AdminProducts: React.FC = () => {
               key={product.id}
               className={`border rounded p-2 ${product.active ? 'bg-white' : 'bg-gray-200'} flex flex-col`}
             >
+              {/* Status and Offer Buttons Section */}
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-xs sm:text-2xl font-semibold truncate">
-                  {product.name}
-                </h2>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleToggleProductStatus(product.id)}
@@ -130,6 +138,44 @@ export const AdminProducts: React.FC = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Product Name Section */}
+              <div className="flex justify-between items-center mb-2">
+                {editingNameId === product.id ? (
+                  <div className="flex items-center w-full">
+                    <input
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      className="w-full p-1 border rounded text-xs mr-2"
+                      placeholder="Nuevo nombre"
+                    />
+                    <button
+                      onClick={() => handleUpdateProductName(product.id)}
+                      className="bg-green-500 text-white px-2 py-1 rounded text-xs"
+                    >
+                      Guardar
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center w-full">
+                    <h2 className="text-xs sm:text-2xl font-semibold truncate flex-grow">
+                      {product.name.charAt(0).toUpperCase() + product.name.slice(1)}
+                    </h2>
+                    <button
+                      onClick={() => {
+                        setEditingNameId(product.id);
+                        setNewName(product.name);
+                      }}
+                      className="text-blue-500 hover:text-blue-700 ml-2"
+                    >
+                      <PencilIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Price Section */}
               <div className="flex items-center justify-between">
                 {editingPriceId === product.id ? (
                   <div className="flex items-center">
@@ -175,6 +221,8 @@ export const AdminProducts: React.FC = () => {
                   </button>
                 )}
               </div>
+
+              {/* Status Text */}
               <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
                 Estado: {product.active ? 'Activo' : 'Inactivo'} {product.offer && ' • En Oferta'}
               </p>

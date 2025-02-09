@@ -12,6 +12,7 @@ import {
   toggleProductStatus,
   fetchProducts,
   toggleProductOffer,
+  updateProductName,
 } from '../data/api';
 import { toast, Id, ToastOptions } from 'react-toastify';
 
@@ -38,7 +39,10 @@ type ProductAction =
   | { type: 'UPDATE_PRODUCT_PRICE_FAILURE'; payload: string }
   | { type: 'TOGGLE_PRODUCT_OFFER_START'; payload: string }
   | { type: 'TOGGLE_PRODUCT_OFFER_SUCCESS'; payload: Product[] }
-  | { type: 'TOGGLE_PRODUCT_OFFER_FAILURE'; payload: string };
+  | { type: 'TOGGLE_PRODUCT_OFFER_FAILURE'; payload: string }
+  | { type: 'UPDATE_PRODUCT_NAME_START'; payload: { id: string; name: string } }
+  | { type: 'UPDATE_PRODUCT_NAME_SUCCESS'; payload: Product[] }
+  | { type: 'UPDATE_PRODUCT_NAME_FAILURE'; payload: string };
 
 // Define el tipo del contexto
 interface ProductContextType {
@@ -48,6 +52,7 @@ interface ProductContextType {
   toggleProductStatusAction: (productId: string) => Promise<void>;
   updateProductPriceAction: (productId: string, newPrice: number) => Promise<void>;
   toggleProductOfferAction: (productId: string) => Promise<void>;
+  updateProductNameAction: (productId: string, newName: string) => Promise<void>;
 }
 
 // Reducer
@@ -89,6 +94,12 @@ const productReducer = (state: ProductState, action: ProductAction): ProductStat
     case 'TOGGLE_PRODUCT_OFFER_SUCCESS':
       return { ...state, products: action.payload, loading: false, error: null };
     case 'TOGGLE_PRODUCT_OFFER_FAILURE':
+      return { ...state, loading: false, error: action.payload };
+    case 'UPDATE_PRODUCT_NAME_START':
+      return { ...state, loading: true, error: null };
+    case 'UPDATE_PRODUCT_NAME_SUCCESS':
+      return { ...state, products: action.payload, loading: false, error: null };
+    case 'UPDATE_PRODUCT_NAME_FAILURE':
       return { ...state, loading: false, error: action.payload };
     default:
       return state;
@@ -205,6 +216,21 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
+  // Acción para actualizar el nombre del producto
+  const updateProductNameAction = async (productId: string, newName: string) => {
+    dispatch({ type: 'UPDATE_PRODUCT_NAME_START', payload: { id: productId, name: newName } });
+    try {
+      const updatedProducts = await updateProductName(productId, newName);
+      dispatch({ type: 'UPDATE_PRODUCT_NAME_SUCCESS', payload: updatedProducts });
+      safeToast('Nombre de producto actualizado', 'success');
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error al actualizar nombre';
+      dispatch({ type: 'UPDATE_PRODUCT_NAME_FAILURE', payload: errorMessage });
+      safeToast('No se pudo actualizar el nombre del producto', 'error');
+    }
+  };
+
   return (
     <ProductContext.Provider
       value={{
@@ -214,6 +240,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         toggleProductStatusAction,
         updateProductPriceAction,
         toggleProductOfferAction,
+        updateProductNameAction,
       }}
     >
       {children}

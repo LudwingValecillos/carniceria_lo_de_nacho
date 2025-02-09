@@ -151,4 +151,40 @@ export const toggleProductOffer = async (productId: string) => {
   }
 };
 
+export const updateProductName = async (productId: string, newName: string) => {
+  try {
+    // Obtiene los productos actuales
+    const response = await axios.get(API_URL, {
+      headers: {
+        'X-Master-Key': API_KEY,
+      },
+    });
+
+    // Determina la fuente correcta de datos
+    const productsData =
+      response.data.record?.record || response.data.record || response.data || [];
+
+    // Asegura que productsData sea un array
+    const productsList = Array.isArray(productsData) ? productsData : [productsData];
+
+    // Actualiza el nombre del producto específico
+    const updatedProducts = productsList.map((product: Product) =>
+      product.id === productId ? { ...product, name: newName } : product
+    );
+
+    // Envía los productos actualizados
+    await axios.put(API_URL, { record: updatedProducts }, {
+      headers: {
+        'X-Master-Key': API_KEY,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return updatedProducts;
+  } catch (error) {
+    console.error('Error updating product name:', error);
+    throw error;
+  }
+};
+
 export default fetchProducts;
