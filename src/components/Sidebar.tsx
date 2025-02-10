@@ -134,7 +134,6 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
 
           <div className="p-4 border-t">
             <div className="flex justify-evenly space-x-4 ">
-              <Link to="/login" className="text-gray-600 hover:text-pink-600"> <Settings /> </Link>
               <a href="https://www.instagram.com/lodenachocarniceria/" className="text-gray-600 hover:text-pink-600">
                 Instagram
               </a>
