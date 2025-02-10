@@ -7,13 +7,17 @@ import img2 from '../images/banner2.png';
 import img3 from '../images/banner3.png';
 import img4 from '../images/banner4.png';
 import img5 from '../images/banner5.png';
+import img6 from '../images/banner4.2.png';
+import img7 from '../images/banner1.2.png';
+
+
 
 
 const mobileImages = [img1, img2, img3, img4,img5];
 
 
 // Crea dos arrays separados
-const desktopImages = mobileImages
+const desktopImages = [img7, img2, img3, img6,img5]
 
 // Hook personalizado para detectar el tamaño de pantalla
 const useScreenSize = () => {
