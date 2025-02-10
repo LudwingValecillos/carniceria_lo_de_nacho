@@ -256,9 +256,9 @@ const App: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Horarios</h3>
               <p className="text-sm text-gray-300">
-                Lunes a Sabado: 9:00 - 14:00 / 16:00 - 20:00    
+                Lunes a Sabado: 9:00 - 13:00 / 17:00 - 21:00    
                 <br />
-                Domingos: 9:00 - 13:30
+                Domingos y Feriados: 9:00 - 13:30
               </p>
             </div>
           </div>
