@@ -9,6 +9,7 @@ import { useProductContext } from './context/ProductContext';
 import logo from './images/logolodenacho.png';
 import { toast, ToastContainer, ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { fetchProducts } from './data/api';  
 import { PrivateRoute } from './components/PrivateRoute';
 import clsx from 'clsx';
 
@@ -31,7 +32,17 @@ const App: React.FC = () => {
 
   // Fetch products on component mount
   useEffect(() => {
-    fetchProductsAction();
+    const loadProducts = async () => {
+      try {
+        const fetchedProducts = await fetchProducts();
+        fetchProductsAction(fetchedProducts);
+      } catch (error) {
+        toast.error('Error al cargar productos', toastConfig);
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    loadProducts();
   }, []);
 
   // Memoize filtered products to prevent unnecessary recalculations

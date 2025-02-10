@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Product } from '../types';
 
 // Nota: Por ahora se usan las credenciales directamente. Más adelante pásalas a variables de entorno (.env).
-const API_URL = 'https://api.jsonbin.io/v3/b/67a17aa9ad19ca34f8f96825'; // Reemplaza con tu URL de JSONBin
+const API_URL = 'https://api.jsonbin.io/v3/b/67aa7453acd3cb34a8dd211e'; // Reemplaza con tu URL de JSONBin
 const API_KEY = '$2a$10$NX0Yf/TcCBMfxZyucoKoB.2IKTOWiCwjk.c0NL/o/nf78rg/UQ.ny'; // Solo si es privado
 
 // ----------------------------
@@ -163,6 +163,36 @@ export const updateProductName = async (productId: string, newName: string) => {
   } catch (error) {
     console.error('Error updating product name:', error);
     throw error;
+  }
+};
+
+export const updateProduct = async (productId: string, updates: Partial<Product>): Promise<Product[]> => {
+  try {
+    const response = await axios.get(API_URL, {
+      headers: { 'X-Master-Key': API_KEY },
+    });
+
+    const currentProducts = 
+      response.data.record?.record || 
+      response.data.record || 
+      response.data || 
+      [];
+
+    const updatedProducts = currentProducts.map(product => 
+      product.id === productId ? { ...product, ...updates } : product
+    );
+
+    await axios.put(API_URL, { record: updatedProducts }, {
+      headers: {
+        'X-Master-Key': API_KEY,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return updatedProducts;
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return [];
   }
 };
 
