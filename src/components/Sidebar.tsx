@@ -26,6 +26,11 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
     'Bebidas',
     
   ];
+  const clearStorage = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('username');
+  
+  };
 
   return (
     <>
@@ -54,7 +59,7 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
           </div>
 
           <nav className="flex-1 overflow-y-auto">
-            {location.pathname === '/adminproducts' ? (
+            {location.pathname === '/admin/productos' ? (
               <div className="py-2">
                 <Link
                   to="/"
@@ -62,6 +67,13 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
                   onClick={onClose}
                 >
                   Volver al Inicio
+                </Link>
+                <Link
+                  to="/"
+                  className="block px-4 py-3 text-lg hover:bg-gray-100"
+                  onClick={clearStorage}
+                >
+                  Cerrar Sesión
                 </Link>
               </div>
             ) : (

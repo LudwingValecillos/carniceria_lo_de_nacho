@@ -3,13 +3,8 @@ import { ToastContainer, ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Product } from '../types';
 import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
-import { safeToast } from '../context/ProductContext';
-import {
-  fetchProducts,
-  addNewProduct,
-  updateProduct,
-  deleteProduct,
-} from '../data/api';
+import { useProductContext, safeToast } from '../context/ProductContext';
+import { addNewProduct, deleteProduct } from '../data/api';
 import clsx from 'clsx';
 
 const toastConfig: ToastOptions = {
@@ -23,10 +18,15 @@ const toastConfig: ToastOptions = {
 };
 
 export const AdminProducts: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
+  const {
+    state,
+    toggleProductStatusAction,
+    updateProductPriceAction,
+    fetchProductsAction,
+    toggleProductOfferAction,
+    updateProductNameAction,
+    deleteProductAction
+  } = useProductContext();
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState<string>('');
@@ -43,19 +43,7 @@ export const AdminProducts: React.FC = () => {
   const [deleteModalProductId, setDeleteModalProductId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchInitialProducts = async () => {
-      try {
-        setLoading(true);
-        const fetchedProducts = await fetchProducts();
-        setProducts(fetchedProducts);
-        setLoading(false);
-      } catch (err) {
-        setError('Error al cargar productos');
-        setLoading(false);
-      }
-    };
-
-    fetchInitialProducts();
+    fetchProductsAction();
   }, []);
 
   const formatPrice = (price: number) => {
@@ -65,55 +53,27 @@ export const AdminProducts: React.FC = () => {
     });
   };
 
-  const handleToggleProductStatus = async (productId: string) => {
-    try {
-      const updatedProducts = await updateProduct(productId, { 
-        active: !products.find(p => p.id === productId)?.active 
-      });
-      setProducts(updatedProducts);
-      safeToast('Estado del producto actualizado', 'success');
-    } catch (error) {
-      safeToast('Error al actualizar el estado', 'error');
-    }
+  const handleToggleProductStatus = (productId: string) => {
+    toggleProductStatusAction(productId);
   };
 
-  const handleUpdateProductPrice = async (productId: string) => {
+  const handleUpdateProductPrice = (productId: string) => {
     const numericPrice = parseFloat(newPrice.replace(/\./g, ''));
     if (!isNaN(numericPrice)) {
-      try {
-        const updatedProducts = await updateProduct(productId, { price: numericPrice });
-        setProducts(updatedProducts);
-        setEditingPriceId(null);
-        safeToast('Precio actualizado', 'success');
-      } catch (error) {
-        safeToast('Error al actualizar el precio', 'error');
-      }
+      updateProductPriceAction(productId, numericPrice);
+      setEditingPriceId(null);
     }
   };
 
-  const handleUpdateProductName = async (productId: string) => {
+  const handleUpdateProductName = (productId: string) => {
     if (newName.trim()) {
-      try {
-        const updatedProducts = await updateProduct(productId, { name: newName.trim() });
-        setProducts(updatedProducts);
-        setEditingNameId(null);
-        safeToast('Nombre actualizado', 'success');
-      } catch (error) {
-        safeToast('Error al actualizar el nombre', 'error');
-      }
+      updateProductNameAction(productId, newName.trim());
+      setEditingNameId(null);
     }
   };
 
-  const handleToggleProductOffer = async (productId: string) => {
-    try {
-      const updatedProducts = await updateProduct(productId, { 
-        offer: !products.find(p => p.id === productId)?.offer 
-      });
-      setProducts(updatedProducts);
-      safeToast('Estado de oferta actualizado', 'success');
-    } catch (error) {
-      safeToast('Error al actualizar la oferta', 'error');
-    }
+  const handleToggleProductOffer = (productId: string) => {
+    toggleProductOfferAction(productId);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,17 +102,23 @@ export const AdminProducts: React.FC = () => {
         offer: newProductOffer
       });
 
-      if (newProduct) {
-        setProducts(prevProducts => [...prevProducts, newProduct]);
-        setIsModalOpen(false);
-        setNewProductName('');
-        setNewProductPrice('');
-        setNewProductCategory('');
-        setNewProductImage(null);
-        setNewProductOffer(false);
-        safeToast('Producto agregado exitosamente', 'success');
-      }
+      // Reload products after adding a new product
+      await fetchProductsAction();
+
+      // Close the modal
+      setIsModalOpen(false);
+
+      // Reset form fields immediately
+      setNewProductName('');
+      setNewProductPrice('');
+      setNewProductCategory('');
+      setNewProductImage(null);
+      setNewProductOffer(false);
+
+      // Success toast
+      safeToast('Producto agregado exitosamente', 'success');
     } catch (error) {
+      // Error toast
       safeToast('Error al agregar el producto', 'error');
     } finally {
       setIsAddingProduct(false);
@@ -163,16 +129,10 @@ export const AdminProducts: React.FC = () => {
     setDeleteModalProductId(productId);
   };
 
-  const confirmDeleteProduct = async () => {
+  const confirmDeleteProduct = () => {
     if (deleteModalProductId) {
-      try {
-        const updatedProducts = await deleteProduct(deleteModalProductId);
-        setProducts(updatedProducts);
-        setDeleteModalProductId(null);
-        safeToast('Producto eliminado', 'success');
-      } catch (error) {
-        safeToast('Error al eliminar el producto', 'error');
-      }
+      deleteProductAction(deleteModalProductId);
+      setDeleteModalProductId(null);
     }
   };
 
@@ -181,14 +141,14 @@ export const AdminProducts: React.FC = () => {
   };
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => 
+    return state.products.filter((product) => 
       (selectedCategory === null || product.category === selectedCategory) &&
       product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [products, searchTerm, selectedCategory]);
+  }, [state.products, searchTerm, selectedCategory]);
 
-  if (error) {
-    return <div className="text-center text-red-500">Error: {error}</div>;
+  if (state.error) {
+    return <div className="text-center text-red-500">Error: {state.error}</div>;
   }
 
   return (
@@ -233,207 +193,244 @@ export const AdminProducts: React.FC = () => {
         </div>
       </div>
       {/* Grid de productos */}
-      {loading ? (
+      {state.loading ? (
         <div className="text-center">Cargando productos...</div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="bg-white rounded-lg shadow-md p-2 sm:p-4 relative flex flex-col"
+              className={`border rounded p-2 ${product.active ? 'bg-white' : 'bg-gray-200'} flex flex-col`}
             >
-              {/* Product Image */}
-              <div className="relative mb-2 sm:mb-4">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-32 sm:h-48 object-cover rounded-md"
-                />
-                {/* Offer Badge */}
-                {product.offer && (
-                  <div className="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
-                    Oferta
-                  </div>
+              {/* Product Image Section */}
+              <div className="mb-2 flex justify-center items-center h-32 w-full">
+                {product.image && (
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="max-h-full max-w-full object-contain"
+                  />
                 )}
               </div>
+              {/* Status and Offer Buttons Section */}
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleToggleProductStatus(product.id)}
+                    className={`px-1 sm:px-2 py-1 rounded text-xs ${
+                      product.active ? 'bg-red-500' : 'bg-green-500'
+                    } text-white`}
+                  >
+                    {product.active ? 'Desactivar' : 'Activar'}
+                  </button>
+                  <button
+                    onClick={() => handleToggleProductOffer(product.id)}
+                    className={`px-1 sm:px-2 py-1 rounded text-xs ${
+                      product.offer ? 'bg-yellow-500' : 'bg-gray-300'
+                    } text-white`}
+                  >
+                    <SparklesIcon className="h-4 w-4" />
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteProduct(product.id)}
+                    className="p-1 rounded bg-red-100 text-red-500 hover:bg-red-200"
+                    title="Eliminar producto"
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
 
-              {/* Product Details */}
-              <div className="flex-grow">
+              {/* Product Name Section */}
+              <div className="flex justify-between items-center mb-2">
                 {editingNameId === product.id ? (
-                  <div className="flex items-center mb-2">
+                  <div className="flex items-center w-full">
                     <input
                       type="text"
-                      defaultValue={product.name}
+                      value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      className="w-full px-2 py-1 border rounded text-sm"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleUpdateProductName(product.id);
-                      }}
+                      className="w-full p-1 border rounded text-sm md:text-base mr-2"
+                      placeholder="Nuevo nombre"
                     />
                     <button
                       onClick={() => handleUpdateProductName(product.id)}
-                      className="ml-2 text-green-500"
+                      className="bg-green-500 text-white px-2 py-1 rounded text-xs md:text-base"
                     >
-                      ✓
+                      Guardar
                     </button>
                   </div>
                 ) : (
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-sm sm:text-base font-semibold">
-                      {product.name}
-                    </h3>
-                    <PencilIcon
+                  <div className="flex items-center w-full">
+                    <h2 className="text-xs sm:text-2xl font-semibold truncate flex-grow">
+                      {product.name.charAt(0).toUpperCase() + product.name.slice(1)}
+                    </h2>
+                    <button
                       onClick={() => {
                         setEditingNameId(product.id);
                         setNewName(product.name);
                       }}
-                      className="h-4 w-4 text-gray-500 cursor-pointer"
-                    />
+                      className="text-blue-500 hover:text-blue-700 ml-2"
+                    >
+                      <PencilIcon className="h-4 w-4" />
+                    </button>
                   </div>
                 )}
+              </div>
 
+              {/* Price Section */}
+              <div className="flex items-center justify-between">
                 {editingPriceId === product.id ? (
-                  <div className="flex items-center mb-2">
+                  <div className="flex items-center">
                     <input
                       type="text"
-                      defaultValue={formatPrice(Number(product.price))}
+                      value={newPrice}
                       onChange={(e) => setNewPrice(e.target.value)}
-                      className="w-full px-2 py-1 border rounded text-sm"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleUpdateProductPrice(product.id);
-                      }}
+                      className="w-20 sm:w-24 p-1 border rounded text-xs mr-2"
+                      placeholder="Nuevo precio"
                     />
                     <button
                       onClick={() => handleUpdateProductPrice(product.id)}
-                      className="ml-2 text-green-500"
+                      className="bg-green-500 text-white px-2 py-1 rounded text-xs"
                     >
-                      ✓
+                      Guardar
                     </button>
                   </div>
                 ) : (
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="text-sm sm:text-base font-bold text-blue-600">
-                      ${formatPrice(Number(product.price))}
-                    </p>
-                    <PencilIcon
-                      onClick={() => {
-                        setEditingPriceId(product.id);
-                        setNewPrice(formatPrice(Number(product.price)));
-                      }}
-                      className="h-4 w-4 text-gray-500 cursor-pointer"
-                    />
-                  </div>
+                  <p className="font-bold text-xs sm:text-sm">
+                    ${' '}
+                    {formatPrice(
+                      typeof product.price === 'number'
+                        ? product.price
+                        : parseFloat(product.price)
+                    )}
+                  </p>
                 )}
-
-                <p className="text-xs sm:text-sm text-gray-500 mb-2">
-                  {product.category}
-                </p>
+                {editingPriceId !== product.id && (
+                  <button
+                    onClick={() => {
+                      setEditingPriceId(product.id);
+                      setNewPrice(
+                        formatPrice(
+                          typeof product.price === 'number'
+                            ? product.price
+                            : parseFloat(product.price)
+                        )
+                      );
+                    }}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
+                )}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex justify-between items-center mt-2">
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleToggleProductStatus(product.id)}
-                    className={clsx(
-                      "px-2 py-1 text-xs rounded-full",
-                      product.active
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    )}
-                  >
-                    {product.active ? "Activo" : "Inactivo"}
-                  </button>
-                  <button
-                    onClick={() => handleToggleProductOffer(product.id)}
-                    className={clsx(
-                      "px-2 py-1 text-xs rounded-full",
-                      product.offer
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-gray-100 text-gray-700"
-                    )}
-                  >
-                    {product.offer ? "En Oferta" : "Sin Oferta"}
-                  </button>
-                </div>
-                <TrashIcon
-                  onClick={() => handleDeleteProduct(product.id)}
-                  className="h-5 w-5 text-red-500 cursor-pointer"
-                />
-              </div>
+              {/* Status Text */}
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
+                Estado: {product.active ? 'Activo' : 'Inactivo'} {product.offer && ' • En Oferta'}
+              </p>
             </div>
           ))}
         </div>
       )}
+      {filteredProducts.length === 0 && (
+        <div className="text-center text-gray-500 mt-8">
+          No se encontraron productos que coincidan con la búsqueda.
+        </div>
+      )}
+      {/* Add Product Button */}
+      <button 
+        onClick={() => setIsModalOpen(true)}
+        className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
+      >
+        <PlusIcon className="h-6 w-6" />
+      </button>
 
-      {/* Add Product Modal */}
+      {/* Modal for Adding Product */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
             <h2 className="text-xl font-bold mb-4">Agregar Nuevo Producto</h2>
-            <input
-              type="text"
-              placeholder="Nombre del producto"
-              value={newProductName}
-              onChange={(e) => setNewProductName(e.target.value)}
-              className="w-full mb-2 px-3 py-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Precio"
-              value={newProductPrice}
-              onChange={(e) => setNewProductPrice(e.target.value)}
-              className="w-full mb-2 px-3 py-2 border rounded"
-            />
-            <select
-              value={newProductCategory}
-              onChange={(e) => setNewProductCategory(e.target.value)}
-              className="w-full mb-2 px-3 py-2 border rounded"
-            >
-              <option value="">Seleccionar Categoría</option>
-              {[
-                'vacuno',
-                'cerdo',
-                'pollo',
-                'anchuras',
-                'fiambres',
-                'congelados',
-                'carbon',
-                'bebidas'
-              ].map((category) => (
-                <option key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </option>
-              ))}
-            </select>
-            <div className="flex items-center mb-2">
+            
+            <div className="space-y-4">
               <input
-                type="file"
-                onChange={handleImageUpload}
-                className="w-full"
-                accept="image/*"
+                type="text"
+                placeholder="Nombre del Producto"
+                value={newProductName}
+                onChange={(e) => setNewProductName(e.target.value)}
+                className="w-full p-2 border rounded"
               />
-            </div>
-            <div className="flex items-center mb-4">
+              
               <input
-                type="checkbox"
-                checked={newProductOffer}
-                onChange={() => setNewProductOffer(!newProductOffer)}
-                className="mr-2"
+                type="text"
+                placeholder="Precio"
+                value={newProductPrice}
+                onChange={(e) => setNewProductPrice(e.target.value)}
+                className="w-full p-2 border rounded"
               />
-              <label>Producto en Oferta</label>
+              
+              <select
+                value={newProductCategory}
+                onChange={(e) => setNewProductCategory(e.target.value)}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Seleccionar Categoría</option>
+                {[
+                  'vacuno',
+                  'cerdo',
+                  'pollo',
+                  'anchuras',
+                  'fiambres',
+                  'congelados',
+                  'carbon',
+                  'bebidas'
+                ].map((category) => (
+                  <option key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
+                ))}
+              </select>
+              
+              <div className="flex items-center">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={newProductOffer}
+                  onChange={(e) => setNewProductOffer(e.target.checked)}
+                  className="mr-2"
+                />
+                Oferta</label>
+              </div>
+              
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full p-2 border rounded"
+                />
+                {newProductImage && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    {newProductImage.name}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="flex justify-end space-x-2">
+            
+            <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 rounded"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleAddProduct}
                 disabled={isAddingProduct}
-                className="px-4 py-2 bg-blue-500 text-white rounded"
+                className={`px-4 py-2 rounded ${
+                  isAddingProduct 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
               >
                 {isAddingProduct ? 'Agregando...' : 'Agregar Producto'}
               </button>
@@ -441,23 +438,22 @@ export const AdminProducts: React.FC = () => {
           </div>
         </div>
       )}
-
       {/* Delete Confirmation Modal */}
       {deleteModalProductId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+          <div className="bg-white p-6 rounded-lg shadow-xl">
             <h2 className="text-xl font-bold mb-4">Confirmar Eliminación</h2>
-            <p>¿Estás seguro de que deseas eliminar este producto?</p>
-            <div className="flex justify-end space-x-2 mt-4">
-              <button
+            <p className="mb-4">¿Estás seguro de que quieres eliminar este producto?</p>
+            <div className="flex justify-end space-x-2">
+              <button 
                 onClick={cancelDeleteProduct}
-                className="px-4 py-2 bg-gray-200 rounded"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
               >
                 Cancelar
               </button>
-              <button
+              <button 
                 onClick={confirmDeleteProduct}
-                className="px-4 py-2 bg-red-500 text-white rounded"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
               >
                 Eliminar
               </button>
@@ -465,10 +461,17 @@ export const AdminProducts: React.FC = () => {
           </div>
         </div>
       )}
-
-      <ToastContainer />
+      <ToastContainer 
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };
-
-export default AdminProducts;
