@@ -202,6 +202,16 @@ export const AdminProducts: React.FC = () => {
               key={product.id}
               className={`border rounded p-2 ${product.active ? 'bg-white' : 'bg-gray-200'} flex flex-col`}
             >
+              {/* Product Image Section */}
+              <div className="mb-2 flex justify-center items-center h-32 w-full">
+                {product.image && (
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                )}
+              </div>
               {/* Status and Offer Buttons Section */}
               <div className="flex justify-between items-center mb-2">
                 <div className="flex space-x-2">
