@@ -6,11 +6,21 @@ import { Cart } from './components/Cart';
 import { Product, CartItem } from './types';
 import { Search, Menu, MessageCircle } from 'lucide-react';
 import { useProductContext } from './context/ProductContext';
-// import logo from './images/logo.jpg.png';
 import logo from './images/logolodenacho.png';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer, ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PrivateRoute } from './components/PrivateRoute';
+import clsx from 'clsx';
+
+const toastConfig: ToastOptions = {
+  position: "top-right",
+  autoClose: 2000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+};
 
 const App: React.FC = () => {
   const { state, fetchProductsAction } = useProductContext(); // Use global state
@@ -53,14 +63,24 @@ const App: React.FC = () => {
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
       if (existingItem) {
-        toast.info(`Se agregó 0.5 kg de ${product.name} al carrito`);
+        // Use a single, unique toast ID for cart updates
+        toast.info(`Se agregó 0.5 kg de ${product.name} al carrito`, {
+          ...toastConfig,
+          toastId: 'cart-update'
+        });
         return prev.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 0.5 }
             : item
         );
       }
-      toast.success(`Se agregó ${product.name} al carrito`);
+      
+      // Use a unique toast ID for new cart items
+      toast.success(`Se agregó ${product.name} al carrito`, {
+        ...toastConfig,
+        toastId: 'cart-add'
+      });
+      
       return [...prev, { ...product, quantity: 1 }];
     });
   }, []);
@@ -184,10 +204,14 @@ const App: React.FC = () => {
                 
                 <div className="grid justify-items-center items-center grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                   {filteredProducts.map(product => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onAddToCart={handleAddToCart}
+                    <ProductCard 
+                      key={product.id} 
+                      product={product} 
+                      onAddToCart={handleAddToCart} 
+                      className={clsx({
+                        'opacity-50': !product.active,
+                        'hover:scale-105': product.active
+                      })}
                     />
                   ))}
                 </div>
@@ -245,7 +269,7 @@ const App: React.FC = () => {
           </div>
         </div>
       </footer>
-      <ToastContainer position="top-right" autoClose={2000} />
+      <ToastContainer {...toastConfig} />
     </div>
   );
 };

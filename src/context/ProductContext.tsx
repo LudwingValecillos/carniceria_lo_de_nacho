@@ -53,6 +53,7 @@ interface ProductContextType {
   updateProductPriceAction: (productId: string, newPrice: number) => Promise<void>;
   toggleProductOfferAction: (productId: string) => Promise<void>;
   updateProductNameAction: (productId: string, newName: string) => Promise<void>;
+  safeToast: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
 // Reducer
@@ -111,6 +112,32 @@ export const ProductContext = createContext<ProductContextType | undefined>(
   undefined
 );
 
+// Exportar la función safeToast de manera independiente
+export const safeToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  // Limpiar toasts existentes antes de mostrar uno nuevo
+  toast.dismiss();
+
+  const toastConfig: ToastOptions = {
+    position: 'bottom-right',
+    autoClose: 2000,
+    hideProgressBar: true,
+    closeOnClick: true,
+    pauseOnHover: false,
+    draggable: false,
+    limit: 3, // Limitar el número de toasts simultáneos
+    toastId: `toast-${type}-${Date.now()}`, // Garantizar ID único
+  };
+
+  switch (type) {
+    case 'success':
+      return toast.success(message, toastConfig);
+    case 'error':
+      return toast.error(message, toastConfig);
+    default:
+      return toast.info(message, toastConfig);
+  }
+};
+
 // Proveedor del contexto
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(productReducer, {
@@ -118,45 +145,6 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     loading: false,
     error: null,
   });
-
-  // Configuración común del toast
-  const toastConfig: ToastOptions = {
-    position: 'bottom-right',
-    autoClose: 3000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    toastId: 'unique-toast', // Usar un ID estático
-  };
-
-  // Función centralizada de toast sin dismiss para evitar duplicados
-  const safeToast = useCallback(
-    (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-      // Limpiar todos los toasts antes de mostrar uno nuevo
-      toast.clearWaitingQueue();
-      toast.dismiss();
-
-      switch (type) {
-        case 'success':
-          return toast.success(message, {
-            ...toastConfig,
-            toastId: 'success-toast'
-          });
-        case 'error':
-          return toast.error(message, {
-            ...toastConfig,
-            toastId: 'error-toast'
-          });
-        default:
-          return toast.info(message, {
-            ...toastConfig,
-            toastId: 'info-toast'
-          });
-      }
-    },
-    []
-  );
 
   // Acción para obtener productos
   const fetchProductsAction = async () => {
@@ -273,6 +261,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         updateProductPriceAction,
         toggleProductOfferAction,
         updateProductNameAction,
+        safeToast,
       }}
     >
       {children}

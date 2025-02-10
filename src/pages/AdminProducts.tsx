@@ -1,10 +1,21 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer, ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Product } from '../types';
 import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon } from '@heroicons/react/24/solid';
-import { useProductContext } from '../context/ProductContext';
+import { useProductContext, safeToast } from '../context/ProductContext';
 import { addNewProduct } from '../data/api';
+import clsx from 'clsx';
+
+const toastConfig: ToastOptions = {
+  position: "top-right",
+  autoClose: 2000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+};
 
 export const AdminProducts: React.FC = () => {
   const {
@@ -13,7 +24,7 @@ export const AdminProducts: React.FC = () => {
     updateProductPriceAction,
     fetchProductsAction,
     toggleProductOfferAction,
-    updateProductNameAction,
+    updateProductNameAction
   } = useProductContext();
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
@@ -27,6 +38,7 @@ export const AdminProducts: React.FC = () => {
   const [newProductCategory, setNewProductCategory] = useState('');
   const [newProductImage, setNewProductImage] = useState<File | null>(null);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const [newProductOffer, setNewProductOffer] = useState(false);
 
   useEffect(() => {
     fetchProductsAction();
@@ -70,60 +82,43 @@ export const AdminProducts: React.FC = () => {
   };
 
   const handleAddProduct = async () => {
+    if (isAddingProduct) return;
+    
     if (!newProductName || !newProductPrice || !newProductCategory || !newProductImage) {
-      toast.error('Por favor, complete todos los campos', {
-        toastId: 'add-product-error',
-        autoClose: 3000
-      });
+      safeToast('Por favor, complete todos los campos', 'error');
       return;
     }
 
-    // Prevent multiple submissions
-    if (isAddingProduct) return;
-
     setIsAddingProduct(true);
-    
-    try {
-      // Disable the modal first to prevent multiple interactions
-      setIsModalOpen(false);
 
-      const product = await addNewProduct({
+    try {
+      const newProduct = await addNewProduct({
         name: newProductName,
         price: newProductPrice,
         category: newProductCategory,
-        image: newProductImage
+        image: newProductImage,
+        offer: newProductOffer
       });
+
+      // Reload products after adding a new product
+      await fetchProductsAction();
+
+      // Close the modal
+      setIsModalOpen(false);
 
       // Reset form fields immediately
       setNewProductName('');
       setNewProductPrice('');
       setNewProductCategory('');
       setNewProductImage(null);
+      setNewProductOffer(false);
 
-      if (product) {
-        // Use a unique toast ID and ensure only one toast appears
-        toast.success('Producto agregado exitosamente', {
-          toastId: 'add-product-success',
-          autoClose: 3000
-        });
-        
-        // Use a small timeout to prevent potential race conditions
-        setTimeout(() => {
-          fetchProductsAction();
-        }, 100);
-      } else {
-        toast.error('Error al agregar el producto', {
-          toastId: 'add-product-api-error',
-          autoClose: 3000
-        });
-      }
+      // Success toast
+      safeToast('Producto agregado exitosamente', 'success');
     } catch (error) {
-      toast.error('Error al agregar el producto', {
-        toastId: 'add-product-catch-error',
-        autoClose: 3000
-      });
+      // Error toast
+      safeToast('Error al agregar el producto', 'error');
     } finally {
-      // Ensure adding state is reset
       setIsAddingProduct(false);
     }
   };
@@ -361,6 +356,17 @@ export const AdminProducts: React.FC = () => {
                 ))}
               </select>
               
+              <div className="flex items-center">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={newProductOffer}
+                  onChange={(e) => setNewProductOffer(e.target.checked)}
+                  className="mr-2"
+                />
+                Oferta</label>
+              </div>
+              
               <div>
                 <input
                   type="file"
@@ -398,7 +404,17 @@ export const AdminProducts: React.FC = () => {
           </div>
         </div>
       )}
-      <ToastContainer />
+      <ToastContainer 
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

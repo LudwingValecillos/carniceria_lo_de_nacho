@@ -205,7 +205,7 @@ export const addNewProduct = async (
       category: product.category,
       image: imageUrl,
       active: true,
-      offer: false,
+      offer: product.offer ?? false,  // Use the passed offer status or default to false
     };
 
     // Obtén los productos actuales
