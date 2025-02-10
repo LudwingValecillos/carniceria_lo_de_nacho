@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { ShoppingCart, X } from 'lucide-react';
-import { CartItem, CustomerInfo } from '../types';
+import { useState } from "react";
+import { ShoppingCart, X } from "lucide-react";
+import { CartItem, CustomerInfo } from "../types";
 
 interface CartProps {
   items: CartItem[];
@@ -12,32 +12,43 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
-    name: '',
-    location: '',
-    paymentMethod: 'cash'
+    name: "",
+    location: "",
+    paymentMethod: "cash",
   });
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   // Función para formatear precios con separadores de miles
   const formatPrice = (price: number): string => {
-    return price.toLocaleString('es-AR', {
+    return price.toLocaleString("es-AR", {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     });
   };
 
   const handleWhatsAppOrder = () => {
-    const message = `*Nuevo Pedido*\n\n` +
+    const message =
+      `*Nuevo Pedido*\n\n` +
       `*Cliente:* ${customerInfo.name}\n` +
       `*Ubicación:* ${customerInfo.location}\n` +
       `*Método de Pago:* ${customerInfo.paymentMethod}\n\n` +
-      `*Productos:*\n${items.map(item => 
-        `- ${item.name}: ${item.quantity}kg x $${formatPrice(item.price)} = $${formatPrice(item.price * item.quantity)}`
-      ).join('\n')}\n\n` +
+      `*Productos:*\n${items
+        .map(
+          (item) =>
+            `- ${item.name}: ${item.quantity}kg x $${formatPrice(
+              item.price
+            )} = $${formatPrice(item.price * item.quantity)}`
+        )
+        .join("\n")}\n\n` +
       `*Total:* $${formatPrice(total)}`;
 
-    window.open(`https://wa.me/91161450595?text=${encodeURIComponent(message)}`);
+    window.open(
+      `https://wa.me/91161450595?text=${encodeURIComponent(message)}`
+    );
     setIsOpen(false);
     setShowCustomerForm(false);
   };
@@ -71,11 +82,16 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
             {!showCustomerForm ? (
               <div className="p-4">
                 {items.length === 0 ? (
-                  <p className="text-center text-gray-500">El carrito está vacío</p>
+                  <p className="text-center text-gray-500">
+                    El carrito está vacío
+                  </p>
                 ) : (
                   <>
                     {items.map((item) => (
-                      <div key={item.id} className="flex items-center gap-4 mb-4">
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-4 mb-4"
+                      >
                         <img
                           src={item.image}
                           alt={item.name}
@@ -83,17 +99,28 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
                         />
                         <div className="flex-1">
                           <h3 className="font-semibold">{item.name}</h3>
-                          <p className="text-sm text-gray-600">${formatPrice(item.price)}/kg</p>
+                          <p className="text-sm text-gray-600">
+                            ${formatPrice(item.price)}/kg
+                          </p>
                           <div className="flex items-center gap-2 mt-1">
                             <button
-                              onClick={() => onUpdateQuantity(item.id, Math.max(0, item.quantity - 0.5))}
+                              onClick={() =>
+                                onUpdateQuantity(
+                                  item.id,
+                                  Math.max(0, item.quantity - 0.5)
+                                )
+                              }
                               className="px-2 py-1 bg-gray-100 rounded"
                             >
                               -
                             </button>
-                            <span className='w-10 text-center'>{item.quantity}kg</span>
+                            <span className="w-10 text-center">
+                              {item.quantity}kg
+                            </span>
                             <button
-                              onClick={() => onUpdateQuantity(item.id, item.quantity + 0.5)}
+                              onClick={() =>
+                                onUpdateQuantity(item.id, item.quantity + 0.5)
+                              }
                               className="px-2 py-1 bg-gray-100 rounded"
                             >
                               +
@@ -111,7 +138,9 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
                     <div className="mt-4 pt-4 border-t">
                       <div className="flex justify-between items-center mb-4">
                         <span className="font-semibold">Total:</span>
-                        <span className="text-xl font-bold">${formatPrice(total)}</span>
+                        <span className="text-xl font-bold">
+                          ${formatPrice(total)}
+                        </span>
                       </div>
                       <button
                         onClick={() => setShowCustomerForm(true)}
@@ -125,46 +154,93 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
               </div>
             ) : (
               <div className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Información de Contacto</h3>
-                <form onSubmit={(e) => {
-                  e.preventDefault();
-                  handleWhatsAppOrder();
-                }}>
+                <h3 className="text-lg font-semibold mb-4">
+                  Información de Contacto
+                </h3>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleWhatsAppOrder();
+                  }}
+                >
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Nombre</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Nombre
+                      </label>
                       <input
                         type="text"
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         value={customerInfo.name}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            name: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Ubicación</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Ubicación
+                      </label>
                       <input
                         type="text"
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         value={customerInfo.location}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, location: e.target.value })}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            location: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Método de Pago</label>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Método de Pago
+                      </label>
                       <select
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         value={customerInfo.paymentMethod}
-                        onChange={(e) => setCustomerInfo({
-                          ...customerInfo,
-                          paymentMethod: e.target.value as 'cash' | 'card' | 'transfer'
-                        })}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            paymentMethod: e.target.value as
+                              | "cash"
+                              | "card"
+                              | "transfer",
+                          })
+                        }
                       >
                         <option value="cash">Efectivo</option>
                         <option value="card">Tarjeta</option>
                         <option value="transfer">Transferencia</option>
+                        <option value="mercadopago">MercadoPago</option>
                       </select>
+                      {customerInfo.paymentMethod === "mercadopago" && (
+                        <div className="flex flex-col items-center mt-4 gap-2">
+                          <p className="mt-2">
+                            Paga con MercadoPago, guarda el comprobante y
+                            regresa para confirmar tu pedido. Una vez
+                            confirmado, envíanos el comprobante por WhatsApp.{" "}
+                            
+                          </p>
+                          <p className="mt-2 text-center text-lg font-bold">
+                            Monto total: ${formatPrice(items.reduce((total, item) => total + (item.price * item.quantity), 0))}
+                            </p>
+                          <a
+                            href="https://link.mercadopago.com.ar/ludwingvalecillos"
+                            className="text-blue-500 hover:text-blue-700 text-center bg-white border border-gray-300 rounded-md px-4 py-2"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Ir a MercadoPago
+                          </a>
+                        </div>
+                      )}
                     </div>
                     <button
                       type="submit"

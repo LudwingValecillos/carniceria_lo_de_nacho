@@ -46,7 +46,6 @@ export const fetchProducts = async () => {
       offer: product.offer ?? false,
     }));
 
-    console.log('Transformed Products:', transformedProducts);
     return transformedProducts;
   } catch (error) {
     console.error('Error al obtener los productos:', error);
@@ -238,7 +237,6 @@ export const uploadImageToImageKit = async (file: File): Promise<string> => {
     formData.append("key", "9a2d7bbb99f1b945a192fcbbcf11c4af");
 
     const response = await axios.post("https://api.imgbb.com/1/upload", formData);
-    console.log('Full ImgBB upload response:', JSON.stringify(response.data, null, 2));
     return response.data.data.url || '';
   } catch (error) {
     console.error('Error uploading image to ImgBB:', JSON.stringify(error, null, 2));

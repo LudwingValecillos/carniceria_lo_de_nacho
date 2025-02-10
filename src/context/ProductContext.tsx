@@ -137,6 +137,9 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [state, dispatch] = useReducer(productReducer, initialState);
 
   const fetchProductsAction = useCallback(async () => {
+    // If products are already loaded, don't fetch again
+    if (state.products.length > 0 && !state.loading) return;
+
     dispatch({ type: 'FETCH_PRODUCTS_START' });
     try {
       const products = await fetchProducts();
@@ -147,7 +150,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         payload: error instanceof Error ? error.message : 'Error desconocido' 
       });
     }
-  }, []);
+  }, [state.products, state.loading]);
 
   const toggleProductStatusAction = useCallback(async (productId: string) => {
     try {

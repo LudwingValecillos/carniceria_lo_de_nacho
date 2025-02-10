@@ -43,8 +43,11 @@ export const AdminProducts: React.FC = () => {
   const [deleteModalProductId, setDeleteModalProductId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchProductsAction();
-  }, []);
+    // Only fetch products if the products list is empty
+    if (state.products.length === 0) {
+      fetchProductsAction();
+    }
+  }, [state.products, fetchProductsAction]);
 
   const formatPrice = (price: number) => {
     return price.toLocaleString('es-CL', {
@@ -102,9 +105,6 @@ export const AdminProducts: React.FC = () => {
         offer: newProductOffer
       });
 
-      // Reload products after adding a new product
-      await fetchProductsAction();
-
       // Close the modal
       setIsModalOpen(false);
 
@@ -150,6 +150,7 @@ export const AdminProducts: React.FC = () => {
   if (state.error) {
     return <div className="text-center text-red-500">Error: {state.error}</div>;
   }
+  
 
   return (
     <div className="container mx-auto p-4 sm:p-6">

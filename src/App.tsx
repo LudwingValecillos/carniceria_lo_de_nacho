@@ -47,8 +47,6 @@ const App: React.FC = () => {
 
   // Memoize filtered products to prevent unnecessary recalculations
   const filteredProducts = useMemo(() => {
-    console.log('Filtering Products - Total Products:', state.products.length);
-    
     return state.products.filter(product => {
       // Validate product object
       if (!product || !product.name || !product.category) {
