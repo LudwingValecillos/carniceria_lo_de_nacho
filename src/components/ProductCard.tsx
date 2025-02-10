@@ -48,7 +48,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             'text-red-600': product.offer,
             'text-gray-800': !product.offer
           })}>
-            {product.offer ? ` $${formatPrice(product.price)}`: ` $${formatPrice(product.price)}/kg` }
+            {product.offer || product.name.includes('x') || product.name.includes('X') || product.name.includes('por') ? ` $${formatPrice(product.price)}`: ` $${formatPrice(product.price)}/kg` }
           </span>
           <button
             onClick={() => onAddToCart(product)}
