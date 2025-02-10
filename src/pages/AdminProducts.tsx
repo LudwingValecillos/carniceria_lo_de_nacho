@@ -2,9 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { ToastContainer, ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Product } from '../types';
-import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon } from '@heroicons/react/24/solid';
+import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useProductContext, safeToast } from '../context/ProductContext';
-import { addNewProduct } from '../data/api';
+import { addNewProduct, deleteProduct } from '../data/api';
 import clsx from 'clsx';
 
 const toastConfig: ToastOptions = {
@@ -24,7 +24,8 @@ export const AdminProducts: React.FC = () => {
     updateProductPriceAction,
     fetchProductsAction,
     toggleProductOfferAction,
-    updateProductNameAction
+    updateProductNameAction,
+    deleteProductAction
   } = useProductContext();
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
@@ -39,6 +40,7 @@ export const AdminProducts: React.FC = () => {
   const [newProductImage, setNewProductImage] = useState<File | null>(null);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [newProductOffer, setNewProductOffer] = useState(false);
+  const [deleteModalProductId, setDeleteModalProductId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProductsAction();
@@ -123,6 +125,21 @@ export const AdminProducts: React.FC = () => {
     }
   };
 
+  const handleDeleteProduct = (productId: string) => {
+    setDeleteModalProductId(productId);
+  };
+
+  const confirmDeleteProduct = () => {
+    if (deleteModalProductId) {
+      deleteProductAction(deleteModalProductId);
+      setDeleteModalProductId(null);
+    }
+  };
+
+  const cancelDeleteProduct = () => {
+    setDeleteModalProductId(null);
+  };
+
   const filteredProducts = useMemo(() => {
     return state.products.filter((product) => 
       (selectedCategory === null || product.category === selectedCategory) &&
@@ -203,6 +220,13 @@ export const AdminProducts: React.FC = () => {
                     } text-white`}
                   >
                     <SparklesIcon className="h-4 w-4" />
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteProduct(product.id)}
+                    className="p-1 rounded bg-red-100 text-red-500 hover:bg-red-200"
+                    title="Eliminar producto"
+                  >
+                    <TrashIcon className="h-5 w-5" />
                   </button>
                 </div>
               </div>
@@ -399,6 +423,29 @@ export const AdminProducts: React.FC = () => {
                 }`}
               >
                 {isAddingProduct ? 'Agregando...' : 'Agregar Producto'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {deleteModalProductId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <h2 className="text-xl font-bold mb-4">Confirmar Eliminación</h2>
+            <p className="mb-4">¿Estás seguro de que quieres eliminar este producto?</p>
+            <div className="flex justify-end space-x-2">
+              <button 
+                onClick={cancelDeleteProduct}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmDeleteProduct}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Eliminar
               </button>
             </div>
           </div>

@@ -13,6 +13,7 @@ import {
   fetchProducts,
   toggleProductOffer,
   updateProductName,
+  deleteProduct,
 } from '../data/api';
 import { toast, Id, ToastOptions } from 'react-toastify';
 
@@ -42,7 +43,10 @@ type ProductAction =
   | { type: 'TOGGLE_PRODUCT_OFFER_FAILURE'; payload: string }
   | { type: 'UPDATE_PRODUCT_NAME_START'; payload: { id: string; name: string } }
   | { type: 'UPDATE_PRODUCT_NAME_SUCCESS'; payload: Product[] }
-  | { type: 'UPDATE_PRODUCT_NAME_FAILURE'; payload: string };
+  | { type: 'UPDATE_PRODUCT_NAME_FAILURE'; payload: string }
+  | { type: 'DELETE_PRODUCT_START'; payload: string }
+  | { type: 'DELETE_PRODUCT_SUCCESS'; payload: Product[] }
+  | { type: 'DELETE_PRODUCT_FAILURE'; payload: string };
 
 // Define el tipo del contexto
 interface ProductContextType {
@@ -53,6 +57,7 @@ interface ProductContextType {
   updateProductPriceAction: (productId: string, newPrice: number) => Promise<void>;
   toggleProductOfferAction: (productId: string) => Promise<void>;
   updateProductNameAction: (productId: string, newName: string) => Promise<void>;
+  deleteProductAction: (productId: string) => Promise<void>;
   safeToast: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
@@ -101,6 +106,12 @@ const productReducer = (state: ProductState, action: ProductAction): ProductStat
     case 'UPDATE_PRODUCT_NAME_SUCCESS':
       return { ...state, products: action.payload, loading: false, error: null };
     case 'UPDATE_PRODUCT_NAME_FAILURE':
+      return { ...state, loading: false, error: action.payload };
+    case 'DELETE_PRODUCT_START':
+      return { ...state, loading: true, error: null };
+    case 'DELETE_PRODUCT_SUCCESS':
+      return { ...state, products: action.payload, loading: false, error: null };
+    case 'DELETE_PRODUCT_FAILURE':
       return { ...state, loading: false, error: action.payload };
     default:
       return state;
@@ -251,6 +262,22 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
+  // Acción para eliminar un producto
+  const deleteProductAction = useCallback(async (productId: string) => {
+    dispatch({ type: 'DELETE_PRODUCT_START', payload: productId });
+    try {
+      const updatedProducts = await deleteProduct(productId);
+      dispatch({ type: 'DELETE_PRODUCT_SUCCESS', payload: updatedProducts });
+      safeToast('Producto eliminado exitosamente', 'success');
+    } catch (error) {
+      dispatch({ 
+        type: 'DELETE_PRODUCT_FAILURE', 
+        payload: error instanceof Error ? error.message : 'Error al eliminar el producto' 
+      });
+      safeToast('Error al eliminar el producto', 'error');
+    }
+  }, [dispatch]);
+
   return (
     <ProductContext.Provider
       value={{
@@ -261,6 +288,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         updateProductPriceAction,
         toggleProductOfferAction,
         updateProductNameAction,
+        deleteProductAction,
         safeToast,
       }}
     >

@@ -166,6 +166,34 @@ export const updateProductName = async (productId: string, newName: string) => {
   }
 };
 
+export const deleteProduct = async (productId: string) => {
+  try {
+    // Fetch current products
+    const response = await axios.get(API_URL, {
+      headers: { 'X-Master-Key': API_KEY },
+    });
+
+    // Determine the current products
+    const currentProducts = response.data.record?.record || response.data.record || response.data || [];
+
+    // Remove the product with the specified ID
+    const updatedProducts = currentProducts.filter((product: Product) => product.id !== productId);
+
+    // Update the entire product list
+    const updateResponse = await axios.put(API_URL, { record: updatedProducts }, {
+      headers: { 
+        'X-Master-Key': API_KEY,
+        'Content-Type': 'application/json'
+      },
+    });
+
+    return updatedProducts;
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    throw error;
+  }
+};
+
 // ----------------------------
 // Función para subir imagenes a ImgBB
 // ----------------------------
