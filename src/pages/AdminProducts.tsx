@@ -2,8 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Product } from '../types';
-import { PencilIcon, MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { useProductContext } from '../context/ProductContext';
+import { addNewProduct } from '../data/api';
 
 export const AdminProducts: React.FC = () => {
   const {
@@ -20,6 +21,12 @@ export const AdminProducts: React.FC = () => {
   const [newName, setNewName] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newProductName, setNewProductName] = useState('');
+  const [newProductPrice, setNewProductPrice] = useState('');
+  const [newProductCategory, setNewProductCategory] = useState('');
+  const [newProductImage, setNewProductImage] = useState<File | null>(null);
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
 
   useEffect(() => {
     fetchProductsAction();
@@ -53,6 +60,72 @@ export const AdminProducts: React.FC = () => {
 
   const handleToggleProductOffer = (productId: string) => {
     toggleProductOfferAction(productId);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNewProductImage(file);
+    }
+  };
+
+  const handleAddProduct = async () => {
+    if (!newProductName || !newProductPrice || !newProductCategory || !newProductImage) {
+      toast.error('Por favor, complete todos los campos', {
+        toastId: 'add-product-error',
+        autoClose: 3000
+      });
+      return;
+    }
+
+    // Prevent multiple submissions
+    if (isAddingProduct) return;
+
+    setIsAddingProduct(true);
+    
+    try {
+      // Disable the modal first to prevent multiple interactions
+      setIsModalOpen(false);
+
+      const product = await addNewProduct({
+        name: newProductName,
+        price: newProductPrice,
+        category: newProductCategory,
+        image: newProductImage
+      });
+
+      // Reset form fields immediately
+      setNewProductName('');
+      setNewProductPrice('');
+      setNewProductCategory('');
+      setNewProductImage(null);
+
+      if (product) {
+        // Use a unique toast ID and ensure only one toast appears
+        toast.success('Producto agregado exitosamente', {
+          toastId: 'add-product-success',
+          autoClose: 3000
+        });
+        
+        // Use a small timeout to prevent potential race conditions
+        setTimeout(() => {
+          fetchProductsAction();
+        }, 100);
+      } else {
+        toast.error('Error al agregar el producto', {
+          toastId: 'add-product-api-error',
+          autoClose: 3000
+        });
+      }
+    } catch (error) {
+      toast.error('Error al agregar el producto', {
+        toastId: 'add-product-catch-error',
+        autoClose: 3000
+      });
+    } finally {
+      // Ensure adding state is reset
+      setIsAddingProduct(false);
+    }
   };
 
   const filteredProducts = useMemo(() => {
@@ -235,6 +308,97 @@ export const AdminProducts: React.FC = () => {
           No se encontraron productos que coincidan con la búsqueda.
         </div>
       )}
+      {/* Add Product Button */}
+      <button 
+        onClick={() => setIsModalOpen(true)}
+        className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
+      >
+        <PlusIcon className="h-6 w-6" />
+      </button>
+
+      {/* Modal for Adding Product */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h2 className="text-xl font-bold mb-4">Agregar Nuevo Producto</h2>
+            
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Nombre del Producto"
+                value={newProductName}
+                onChange={(e) => setNewProductName(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+              
+              <input
+                type="text"
+                placeholder="Precio"
+                value={newProductPrice}
+                onChange={(e) => setNewProductPrice(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+              
+              <select
+                value={newProductCategory}
+                onChange={(e) => setNewProductCategory(e.target.value)}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Seleccionar Categoría</option>
+                {[
+                  'vacuno',
+                  'cerdo',
+                  'pollo',
+                  'anchuras',
+                  'fiambres',
+                  'congelados',
+                  'carbon',
+                  'bebidas'
+                ].map((category) => (
+                  <option key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
+                ))}
+              </select>
+              
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full p-2 border rounded"
+                />
+                {newProductImage && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    {newProductImage.name}
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleAddProduct}
+                disabled={isAddingProduct}
+                className={`px-4 py-2 rounded ${
+                  isAddingProduct 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
+              >
+                {isAddingProduct ? 'Agregando...' : 'Agregar Producto'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <ToastContainer />
     </div>
   );
 };

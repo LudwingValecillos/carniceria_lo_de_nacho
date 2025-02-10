@@ -203,12 +203,13 @@ const App: React.FC = () => {
       )}
 
       {/* Fixed WhatsApp Button */}
-      <button
+      {window.location.href.includes('admin') ? null : <button
         onClick={handleWhatsAppContact}
         className="fixed bottom-6 right-6 z-40 bg-green-500 p-3 rounded-full shadow-lg hover:bg-green-600 transition-colors"
       >
         <MessageCircle className="w-6 h-6 text-white" />
-      </button>
+      </button>}
+      
 
       {/* Footer */}
       <footer className="bg-gray-800 text-white mt-auto py-8">

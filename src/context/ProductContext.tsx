@@ -127,34 +127,66 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
+    toastId: 'unique-toast', // Usar un ID estático
   };
 
   // Función centralizada de toast sin dismiss para evitar duplicados
   const safeToast = useCallback(
     (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+      // Limpiar todos los toasts antes de mostrar uno nuevo
+      toast.clearWaitingQueue();
+      toast.dismiss();
+
       switch (type) {
         case 'success':
-          return toast.success(message, toastConfig);
+          return toast.success(message, {
+            ...toastConfig,
+            toastId: 'success-toast'
+          });
         case 'error':
-          return toast.error(message, toastConfig);
+          return toast.error(message, {
+            ...toastConfig,
+            toastId: 'error-toast'
+          });
         default:
-          return toast.info(message, toastConfig);
+          return toast.info(message, {
+            ...toastConfig,
+            toastId: 'info-toast'
+          });
       }
     },
-    [toastConfig]
+    []
   );
 
   // Acción para obtener productos
   const fetchProductsAction = async () => {
+    // Prevent multiple simultaneous fetches
+    if (state.loading) return;
+
     dispatch({ type: 'FETCH_PRODUCTS_START' });
     try {
       const products = await fetchProducts();
-      dispatch({ type: 'FETCH_PRODUCTS_SUCCESS', payload: products });
+      
+      // Validate products before dispatching
+      if (Array.isArray(products)) {
+        dispatch({ type: 'FETCH_PRODUCTS_SUCCESS', payload: products });
+      } else {
+        throw new Error('Invalid products data');
+      }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Error al cargar productos';
-      dispatch({ type: 'FETCH_PRODUCTS_FAILURE', payload: errorMessage });
-      safeToast('No se pudieron cargar los productos', 'error');
+      
+      // Only dispatch error if not already in error state
+      if (!state.error) {
+        dispatch({ 
+          type: 'FETCH_PRODUCTS_FAILURE', 
+          payload: errorMessage 
+        });
+        
+        // Use a unique toast ID to prevent multiple toasts
+        safeToast('No se pudieron cargar los productos', 'error');
+      }
     }
   };
 

@@ -26,7 +26,7 @@ export const Login: React.FC = () => {
     setIsLoading(true);
     try {
       // Hardcoded credentials for demo purposes
-      if (data.username === 'admin' || data.username === 'Admin' && data.password === 'admin123') {
+      if (data.username === 'mauro' || data.username === 'Mauro'  && data.password === 'Elperroramon32') {
         // Set login state in localStorage
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('username', data.username);
