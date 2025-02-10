@@ -249,12 +249,12 @@ export const AdminProducts: React.FC = () => {
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      className="w-full p-1 border rounded text-xs mr-2"
+                      className="w-full p-1 border rounded text-sm md:text-base mr-2"
                       placeholder="Nuevo nombre"
                     />
                     <button
                       onClick={() => handleUpdateProductName(product.id)}
-                      className="bg-green-500 text-white px-2 py-1 rounded text-xs"
+                      className="bg-green-500 text-white px-2 py-1 rounded text-xs md:text-base"
                     >
                       Guardar
                     </button>
