@@ -53,11 +53,9 @@ export const AdminProducts: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Solo se cargan los productos si la lista está vacía
-    if (state.products.length === 0) {
-      fetchProductsAction();
-    }
-  }, [state.products, fetchProductsAction]);
+    // Always fetch products and show loading state
+    fetchProductsAction();
+  }, [fetchProductsAction]);
 
   const formatPrice = (price: number) => {
     return price.toLocaleString('es-CL', {
@@ -104,7 +102,9 @@ export const AdminProducts: React.FC = () => {
       return;
     }
 
+
     setIsAddingProduct(true);
+    
 
     try {
       const newProduct = await addNewProduct({
@@ -125,8 +125,10 @@ export const AdminProducts: React.FC = () => {
       setNewProductImage(null);
       setNewProductOffer(false);
 
+      await fetchProductsAction();
+
       // Muestra toast de éxito
-      safeToast('Producto agregado exitosamente', 'success');
+      // safeToast('Producto agregado exitosamente', 'success');
     } catch (error) {
       // Muestra toast de error
       safeToast('Error al agregar el producto', 'error');
