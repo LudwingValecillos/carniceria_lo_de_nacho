@@ -221,7 +221,7 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
                         <option value="mercadopago">MercadoPago</option>
                       </select>
                       {customerInfo.paymentMethod === "mercadopago" && (
-                        <div className="flex flex-col items-center mt-4 gap-2">
+                        <div className="flex flex-col items-center mt-4 gap-2 hidden">
                           <p className="mt-2">
                             Paga con MercadoPago, guarda el comprobante y
                             regresa para confirmar tu pedido. Una vez
