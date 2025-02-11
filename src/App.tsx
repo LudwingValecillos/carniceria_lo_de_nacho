@@ -10,7 +10,6 @@ import logo from './images/logolodenacho.png';
 import { toast, ToastContainer, ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { fetchProducts } from './data/api';  
-import { PrivateRoute } from './components/PrivateRoute';
 import clsx from 'clsx';
 
 const toastConfig: ToastOptions = {
@@ -127,7 +126,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-40">
+      <header className="fixed top-0 left-0 right-0 bg-white shadow-xl z-40">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -211,7 +210,7 @@ const App: React.FC = () => {
                 </div>
               }
                 
-                <div className="grid justify-items-center items-center grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <div className="grid justify-items-center items-center grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-6">
                   {filteredProducts.map(product => (
                     <ProductCard 
                       key={product.id} 
