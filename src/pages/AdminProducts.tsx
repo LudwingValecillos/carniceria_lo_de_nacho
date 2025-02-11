@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ToastContainer, ToastOptions } from 'react-toastify';
+import { ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Product } from '../types';
 import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
@@ -43,7 +43,6 @@ export const AdminProducts: React.FC = () => {
   const [newProductOffer, setNewProductOffer] = useState(false);
   const [deleteModalProductId, setDeleteModalProductId] = useState<string | null>(null);
 
-  // Agregamos el script de Plausible solo para esta vista de administrador
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://plausible.io/js/script.js";
@@ -53,7 +52,6 @@ export const AdminProducts: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Always fetch products and show loading state
     fetchProductsAction();
   }, [fetchProductsAction]);
 
@@ -98,16 +96,14 @@ export const AdminProducts: React.FC = () => {
     if (isAddingProduct) return;
     
     if (!newProductName || !newProductPrice || !newProductCategory || !newProductImage) {
-      safeToast('Por favor, complete todos los campos', 'error');
+      safeToast('Por favor, complete todos los campos', 'error', toastConfig);
       return;
     }
 
-
     setIsAddingProduct(true);
     
-
     try {
-      const newProduct = await addNewProduct({
+      await addNewProduct({
         name: newProductName,
         price: newProductPrice,
         category: newProductCategory,
@@ -115,23 +111,15 @@ export const AdminProducts: React.FC = () => {
         offer: newProductOffer
       });
 
-      // Cierra el modal
       setIsModalOpen(false);
-
-      // Reinicia los campos del formulario
       setNewProductName('');
       setNewProductPrice('');
       setNewProductCategory('');
       setNewProductImage(null);
       setNewProductOffer(false);
-
       await fetchProductsAction();
-
-      // Muestra toast de éxito
-      // safeToast('Producto agregado exitosamente', 'success');
     } catch (error) {
-      // Muestra toast de error
-      safeToast('Error al agregar el producto', 'error');
+      safeToast('Error al agregar el producto', 'error', toastConfig);
     } finally {
       setIsAddingProduct(false);
     }
@@ -169,7 +157,6 @@ export const AdminProducts: React.FC = () => {
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
         Administración de Productos
       </h1>
-      {/* Barra de búsqueda y filtro de categoría */}
       <div className="mb-4 flex items-center space-x-4">
         <div className="relative w-full max-w-md">
           <input
@@ -205,7 +192,6 @@ export const AdminProducts: React.FC = () => {
           </select>
         </div>
       </div>
-      {/* Grid de productos */}
       {state.loading ? (
         <div className="text-center">Cargando productos...</div>
       ) : (
@@ -213,9 +199,8 @@ export const AdminProducts: React.FC = () => {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className={`border rounded p-2 ${product.active ? 'bg-white' : 'bg-gray-200'} flex flex-col`}
+              className={clsx("border rounded p-2", product.active ? 'bg-white' : 'bg-gray-200', "flex flex-col")}
             >
-              {/* Sección de imagen del producto */}
               <div className="mb-2 flex justify-center items-center h-32 w-full">
                 {product.image && (
                   <img 
@@ -225,18 +210,17 @@ export const AdminProducts: React.FC = () => {
                   />
                 )}
               </div>
-              {/* Sección de botones de estado y oferta */}
               <div className="flex justify-between items-center mb-2">
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleToggleProductStatus(product.id)}
-                    className={`px-1 sm:px-2 py-1 rounded text-xs ${product.active ? 'bg-red-500' : 'bg-green-500'} text-white`}
+                    className={clsx("px-1 sm:px-2 py-1 rounded text-xs", product.active ? 'bg-red-500' : 'bg-green-500', "text-white")}
                   >
                     {product.active ? 'Desactivar' : 'Activar'}
                   </button>
                   <button
                     onClick={() => handleToggleProductOffer(product.id)}
-                    className={`px-1 sm:px-2 py-1 rounded text-xs ${product.offer ? 'bg-yellow-500' : 'bg-gray-300'} text-white`}
+                    className={clsx("px-1 sm:px-2 py-1 rounded text-xs", product.offer ? 'bg-yellow-500' : 'bg-gray-300', "text-white")}
                   >
                     <SparklesIcon className="h-4 w-4" />
                   </button>
@@ -249,7 +233,6 @@ export const AdminProducts: React.FC = () => {
                   </button>
                 </div>
               </div>
-              {/* Sección de nombre del producto */}
               <div className="flex justify-between items-center mb-2">
                 {editingNameId === product.id ? (
                   <div className="flex items-center w-full">
@@ -284,7 +267,6 @@ export const AdminProducts: React.FC = () => {
                   </div>
                 )}
               </div>
-              {/* Sección de precio */}
               <div className="flex items-center justify-between">
                 {editingPriceId === product.id ? (
                   <div className="flex items-center">
@@ -330,7 +312,6 @@ export const AdminProducts: React.FC = () => {
                   </button>
                 )}
               </div>
-              {/* Texto de estado */}
               <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
                 Estado: {product.active ? 'Activo' : 'Inactivo'} {product.offer && ' • En Oferta'}
               </p>
@@ -343,14 +324,12 @@ export const AdminProducts: React.FC = () => {
           No se encontraron productos que coincidan con la búsqueda.
         </div>
       )}
-      {/* Botón para agregar producto */}
       <button 
         onClick={() => setIsModalOpen(true)}
         className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
       >
         <PlusIcon className="h-6 w-6" />
       </button>
-      {/* Modal para agregar producto */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
@@ -426,11 +405,12 @@ export const AdminProducts: React.FC = () => {
               <button
                 onClick={handleAddProduct}
                 disabled={isAddingProduct}
-                className={`px-4 py-2 rounded ${
+                className={clsx(
+                  "px-4 py-2 rounded",
                   isAddingProduct 
                     ? 'bg-gray-400 cursor-not-allowed' 
                     : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
+                )}
               >
                 {isAddingProduct ? 'Agregando...' : 'Agregar Producto'}
               </button>
@@ -438,7 +418,6 @@ export const AdminProducts: React.FC = () => {
           </div>
         </div>
       )}
-      {/* Modal de confirmación para eliminar */}
       {deleteModalProductId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl">
@@ -461,17 +440,6 @@ export const AdminProducts: React.FC = () => {
           </div>
         </div>
       )}
-      <ToastContainer 
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
     </div>
   );
 };

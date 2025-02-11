@@ -163,9 +163,11 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         type: 'TOGGLE_PRODUCT_STATUS_SUCCESS', 
         payload: updatedProducts 
       });
-      safeToast('Estado del producto actualizado', 'success');
     } catch (error) {
-      safeToast('Error al actualizar el estado', 'error');
+      dispatch({ 
+        type: 'TOGGLE_PRODUCT_STATUS_FAILURE', 
+        payload: error instanceof Error ? error.message : 'Error desconocido'
+      });
     }
   }, [state.products]);
 
@@ -177,9 +179,11 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         type: 'UPDATE_PRODUCT_PRICE_SUCCESS', 
         payload: updatedProducts 
       });
-      safeToast('Precio actualizado', 'success');
     } catch (error) {
-      safeToast('Error al actualizar el precio', 'error');
+      dispatch({ 
+        type: 'UPDATE_PRODUCT_PRICE_FAILURE', 
+        payload: error instanceof Error ? error.message : 'Error desconocido'
+      });
     }
   }, []);
 
@@ -196,9 +200,11 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         type: 'TOGGLE_PRODUCT_OFFER_SUCCESS', 
         payload: updatedProducts 
       });
-      safeToast('Estado de oferta actualizado', 'success');
     } catch (error) {
-      safeToast('Error al actualizar la oferta', 'error');
+      dispatch({ 
+        type: 'TOGGLE_PRODUCT_OFFER_FAILURE', 
+        payload: error instanceof Error ? error.message : 'Error desconocido'
+      });
     }
   }, [state.products]);
 
@@ -213,6 +219,10 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       safeToast('Nombre actualizado', 'success');
     } catch (error) {
       safeToast('Error al actualizar el nombre', 'error');
+      dispatch({ 
+        type: 'UPDATE_PRODUCT_NAME_FAILURE', 
+        payload: error instanceof Error ? error.message : 'Error desconocido'
+      });
     }
   }, []);
 
@@ -227,6 +237,10 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       safeToast('Producto eliminado', 'success');
     } catch (error) {
       safeToast('Error al eliminar el producto', 'error');
+      dispatch({ 
+        type: 'DELETE_PRODUCT_FAILURE', 
+        payload: error instanceof Error ? error.message : 'Error desconocido'
+      });
     }
   }, []);
 
