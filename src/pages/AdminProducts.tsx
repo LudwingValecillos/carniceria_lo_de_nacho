@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ToastContainer, ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Product } from '../types';
 import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useProductContext, safeToast } from '../context/ProductContext';
 import { addNewProduct, deleteProduct } from '../data/api';
@@ -42,8 +41,17 @@ export const AdminProducts: React.FC = () => {
   const [newProductOffer, setNewProductOffer] = useState(false);
   const [deleteModalProductId, setDeleteModalProductId] = useState<string | null>(null);
 
+  // Inyecta el script de Plausible para el seguimiento
   useEffect(() => {
-    // Only fetch products if the products list is empty
+    const script = document.createElement("script");
+    script.src = "https://plausible.io/js/script.js";
+    script.defer = true;
+    script.setAttribute("data-domain", "lodenachocarniceria.com");
+    document.head.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    // Solo se cargan los productos si la lista está vacía
     if (state.products.length === 0) {
       fetchProductsAction();
     }
@@ -105,20 +113,20 @@ export const AdminProducts: React.FC = () => {
         offer: newProductOffer
       });
 
-      // Close the modal
+      // Cierra el modal
       setIsModalOpen(false);
 
-      // Reset form fields immediately
+      // Reinicia los campos del formulario
       setNewProductName('');
       setNewProductPrice('');
       setNewProductCategory('');
       setNewProductImage(null);
       setNewProductOffer(false);
 
-      // Success toast
+      // Muestra toast de éxito
       safeToast('Producto agregado exitosamente', 'success');
     } catch (error) {
-      // Error toast
+      // Muestra toast de error
       safeToast('Error al agregar el producto', 'error');
     } finally {
       setIsAddingProduct(false);
@@ -151,9 +159,20 @@ export const AdminProducts: React.FC = () => {
     return <div className="text-center text-red-500">Error: {state.error}</div>;
   }
   
-
   return (
     <div className="container mx-auto p-4 sm:p-6">
+      {/* Sección de estadísticas incrustada */}
+      <div className="mb-4">
+        <h2 className="text-xl font-bold mb-2">Estadísticas de Visitas</h2>
+        <iframe
+          src="https://plausible.io/lodenachocarniceria.com" // Asegúrate de que esta URL muestre lo que necesitas
+          width="100%"
+          height="300"
+          style={{ border: "none" }}
+          title="Estadísticas Plausible"
+        />
+      </div>
+
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
         Administración de Productos
       </h1>
@@ -173,7 +192,7 @@ export const AdminProducts: React.FC = () => {
           <select
             value={selectedCategory || ''}
             onChange={(e) => setSelectedCategory(e.target.value || null)}
-            className="w-full  py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Todos</option>
             {[
@@ -203,7 +222,7 @@ export const AdminProducts: React.FC = () => {
               key={product.id}
               className={`border rounded p-2 ${product.active ? 'bg-white' : 'bg-gray-200'} flex flex-col`}
             >
-              {/* Product Image Section */}
+              {/* Sección de imagen del producto */}
               <div className="mb-2 flex justify-center items-center h-32 w-full">
                 {product.image && (
                   <img 
@@ -213,22 +232,18 @@ export const AdminProducts: React.FC = () => {
                   />
                 )}
               </div>
-              {/* Status and Offer Buttons Section */}
+              {/* Sección de botones de estado y oferta */}
               <div className="flex justify-between items-center mb-2">
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleToggleProductStatus(product.id)}
-                    className={`px-1 sm:px-2 py-1 rounded text-xs ${
-                      product.active ? 'bg-red-500' : 'bg-green-500'
-                    } text-white`}
+                    className={`px-1 sm:px-2 py-1 rounded text-xs ${product.active ? 'bg-red-500' : 'bg-green-500'} text-white`}
                   >
                     {product.active ? 'Desactivar' : 'Activar'}
                   </button>
                   <button
                     onClick={() => handleToggleProductOffer(product.id)}
-                    className={`px-1 sm:px-2 py-1 rounded text-xs ${
-                      product.offer ? 'bg-yellow-500' : 'bg-gray-300'
-                    } text-white`}
+                    className={`px-1 sm:px-2 py-1 rounded text-xs ${product.offer ? 'bg-yellow-500' : 'bg-gray-300'} text-white`}
                   >
                     <SparklesIcon className="h-4 w-4" />
                   </button>
@@ -241,8 +256,7 @@ export const AdminProducts: React.FC = () => {
                   </button>
                 </div>
               </div>
-
-              {/* Product Name Section */}
+              {/* Sección de nombre del producto */}
               <div className="flex justify-between items-center mb-2">
                 {editingNameId === product.id ? (
                   <div className="flex items-center w-full">
@@ -277,8 +291,7 @@ export const AdminProducts: React.FC = () => {
                   </div>
                 )}
               </div>
-
-              {/* Price Section */}
+              {/* Sección de precio */}
               <div className="flex items-center justify-between">
                 {editingPriceId === product.id ? (
                   <div className="flex items-center">
@@ -324,8 +337,7 @@ export const AdminProducts: React.FC = () => {
                   </button>
                 )}
               </div>
-
-              {/* Status Text */}
+              {/* Texto de estado */}
               <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
                 Estado: {product.active ? 'Activo' : 'Inactivo'} {product.offer && ' • En Oferta'}
               </p>
@@ -338,20 +350,18 @@ export const AdminProducts: React.FC = () => {
           No se encontraron productos que coincidan con la búsqueda.
         </div>
       )}
-      {/* Add Product Button */}
+      {/* Botón para agregar producto */}
       <button 
         onClick={() => setIsModalOpen(true)}
         className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
       >
         <PlusIcon className="h-6 w-6" />
       </button>
-
-      {/* Modal for Adding Product */}
+      {/* Modal para agregar producto */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
             <h2 className="text-xl font-bold mb-4">Agregar Nuevo Producto</h2>
-            
             <div className="space-y-4">
               <input
                 type="text"
@@ -360,7 +370,6 @@ export const AdminProducts: React.FC = () => {
                 onChange={(e) => setNewProductName(e.target.value)}
                 className="w-full p-2 border rounded"
               />
-              
               <input
                 type="text"
                 placeholder="Precio"
@@ -368,7 +377,6 @@ export const AdminProducts: React.FC = () => {
                 onChange={(e) => setNewProductPrice(e.target.value)}
                 className="w-full p-2 border rounded"
               />
-              
               <select
                 value={newProductCategory}
                 onChange={(e) => setNewProductCategory(e.target.value)}
@@ -390,18 +398,17 @@ export const AdminProducts: React.FC = () => {
                   </option>
                 ))}
               </select>
-              
               <div className="flex items-center">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={newProductOffer}
-                  onChange={(e) => setNewProductOffer(e.target.checked)}
-                  className="mr-2"
-                />
-                Oferta</label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={newProductOffer}
+                    onChange={(e) => setNewProductOffer(e.target.checked)}
+                    className="mr-2"
+                  />
+                  Oferta
+                </label>
               </div>
-              
               <div>
                 <input
                   type="file"
@@ -416,7 +423,6 @@ export const AdminProducts: React.FC = () => {
                 )}
               </div>
             </div>
-            
             <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -439,7 +445,7 @@ export const AdminProducts: React.FC = () => {
           </div>
         </div>
       )}
-      {/* Delete Confirmation Modal */}
+      {/* Modal de confirmación para eliminar */}
       {deleteModalProductId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl">
