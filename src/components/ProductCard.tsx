@@ -31,7 +31,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
     <div
       className={clsx(
-        "bg-white overflow-hidden md:w-56 h-72 md:h-80 border border-black rounded-lg shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)]  md:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]",
+        "flex flex-col justify-between bg-white overflow-hidden md:w-56 h-80 md:h-[22rem] border border-black rounded-lg shadow-[2.5px_2.5px_0px_0px_rgba(0,0,0,1)]  md:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]",
         {
           "h-72": true,
           "md:h-80": true,
