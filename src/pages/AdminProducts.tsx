@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ToastContainer, ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Product } from '../types';
 import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useProductContext, safeToast } from '../context/ProductContext';
 import { addNewProduct, deleteProduct } from '../data/api';
+import  AnalyticsWidget from '../components/AnalyticsWidget';
 import clsx from 'clsx';
 
 const toastConfig: ToastOptions = {
@@ -41,7 +43,7 @@ export const AdminProducts: React.FC = () => {
   const [newProductOffer, setNewProductOffer] = useState(false);
   const [deleteModalProductId, setDeleteModalProductId] = useState<string | null>(null);
 
-  // Inyecta el script de Plausible para el seguimiento
+  // Agregamos el script de Plausible solo para esta vista de administrador
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://plausible.io/js/script.js";
@@ -161,18 +163,7 @@ export const AdminProducts: React.FC = () => {
   
   return (
     <div className="container mx-auto p-4 sm:p-6">
-      {/* Sección de estadísticas incrustada */}
-      <div className="mb-4">
-        <h2 className="text-xl font-bold mb-2">Estadísticas de Visitas</h2>
-        <iframe
-          src="https://plausible.io/lodenachocarniceria.com" // Asegúrate de que esta URL muestre lo que necesitas
-          width="100%"
-          height="300"
-          style={{ border: "none" }}
-          title="Estadísticas Plausible"
-        />
-      </div>
-
+       <AnalyticsWidget />
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
         Administración de Productos
       </h1>
@@ -192,7 +183,7 @@ export const AdminProducts: React.FC = () => {
           <select
             value={selectedCategory || ''}
             onChange={(e) => setSelectedCategory(e.target.value || null)}
-            className="w-full py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full  py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Todos</option>
             {[
