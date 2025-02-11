@@ -17,15 +17,22 @@ const AnalyticsWidget: React.FC = () => {
           'https://plausible.io/api/v1/stats/aggregate?site_id=lodenachocarniceria.com&metrics=pageviews',
           {
             headers: {
-              // Reemplaza el token por tu token real si es necesario
               'Authorization': 'Bearer v3p-8WY0jhic7VEZmSKPzBzh18398QrZP0VYEo9ibWWLxq6bhHfU7fyZsD2tvXyE'
             }
           }
         );
+    
+        if (!response.ok) {
+          throw new Error(`Error en la petición: ${response.status} ${response.statusText}`);
+        }
+    
         const data: AnalyticsResponse = await response.json();
-        setPageViews(data.results.pageviews);
+        console.log(data);
+        
+        setPageViews(data.results.pageviews.value);
       } catch (error) {
         console.error('Error fetching analytics:', error);
+        setPageViews(null);
       } finally {
         setLoading(false);
       }
