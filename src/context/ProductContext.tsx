@@ -12,6 +12,7 @@ import {
   updateProduct,
   addProduct,
   deleteProduct,
+  updateProductImage,
 } from '../data/api';
 import { toast, Id, ToastOptions } from 'react-toastify';
 
@@ -44,7 +45,10 @@ type ProductAction =
   | { type: 'UPDATE_PRODUCT_NAME_FAILURE'; payload: string }
   | { type: 'DELETE_PRODUCT_START'; payload: string }
   | { type: 'DELETE_PRODUCT_SUCCESS'; payload: Product[] }
-  | { type: 'DELETE_PRODUCT_FAILURE'; payload: string };
+  | { type: 'DELETE_PRODUCT_FAILURE'; payload: string }
+  | { type: 'UPDATE_PRODUCT_IMAGE_START'; payload: { id: string; imageFile: File } }
+  | { type: 'UPDATE_PRODUCT_IMAGE_SUCCESS'; payload: Product[] }
+  | { type: 'UPDATE_PRODUCT_IMAGE_FAILURE'; payload: string };
 
 // Estado inicial
 const initialState: ProductState = {
@@ -80,6 +84,7 @@ function productReducer(state: ProductState, action: ProductAction): ProductStat
     case 'UPDATE_PRODUCT_PRICE_SUCCESS':
     case 'TOGGLE_PRODUCT_OFFER_SUCCESS':
     case 'UPDATE_PRODUCT_NAME_SUCCESS':
+    case 'UPDATE_PRODUCT_IMAGE_SUCCESS':
     case 'DELETE_PRODUCT_SUCCESS':
       return { ...state, products: action.payload };
     default:
@@ -123,6 +128,7 @@ interface ProductContextType {
   updateProductPriceAction: (productId: string, newPrice: number) => Promise<void>;
   toggleProductOfferAction: (productId: string) => Promise<void>;
   updateProductNameAction: (productId: string, newName: string) => Promise<void>;
+  updateProductImageAction: (productId: string, newImageFile: File) => Promise<void>;
   deleteProductAction: (productId: string) => Promise<void>;
   safeToast: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
@@ -226,6 +232,24 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   }, []);
 
+  const updateProductImageAction = useCallback(async (productId: string, newImageFile: File) => {
+    try {
+      const updatedProducts = await updateProductImage(productId, newImageFile);
+      
+      dispatch({ 
+        type: 'UPDATE_PRODUCT_IMAGE_SUCCESS', 
+        payload: updatedProducts 
+      });
+      safeToast('Imagen actualizada exitosamente', 'success');
+    } catch (error) {
+      dispatch({ 
+        type: 'UPDATE_PRODUCT_IMAGE_FAILURE', 
+        payload: error instanceof Error ? error.message : 'Error desconocido'
+      });
+      safeToast('Error al actualizar la imagen', 'error');
+    }
+  }, []);
+
   const deleteProductAction = useCallback(async (productId: string) => {
     try {
       const updatedProducts = await deleteProduct(productId);
@@ -252,6 +276,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     updateProductPriceAction,
     toggleProductOfferAction,
     updateProductNameAction,
+    updateProductImageAction,
     deleteProductAction,
     safeToast,
   };
