@@ -288,4 +288,40 @@ export const addNewProduct = async (
   }
 };
 
+export const updateProductImage = async (productId: string, newImageFile: File): Promise<Product[]> => {
+  try {
+    // First, upload the new image to ImageKit
+    const newImageUrl = await uploadImageToImageKit(newImageFile);
+
+    // Fetch current products
+    const response = await axios.get(API_URL, {
+      headers: { 'X-Master-Key': API_KEY },
+    });
+
+    const currentProducts = 
+      response.data.record?.record || 
+      response.data.record || 
+      response.data || 
+      [];
+
+    // Update the product with the new image URL
+    const updatedProducts = currentProducts.map(product => 
+      product.id === productId ? { ...product, image: newImageUrl } : product
+    );
+
+    // Update the entire products list
+    await axios.put(API_URL, { record: updatedProducts }, {
+      headers: {
+        'X-Master-Key': API_KEY,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return updatedProducts;
+  } catch (error) {
+    console.error('Error updating product image:', error);
+    return [];
+  }
+};
+
 export default fetchProducts;

@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Product } from '../types';
 import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useProductContext, safeToast } from '../context/ProductContext';
-import { addNewProduct, deleteProduct } from '../data/api';
+import { addNewProduct, deleteProduct, updateProductImage } from '../data/api';
 import  AnalyticsWidget from '../components/AnalyticsWidget';
 import clsx from 'clsx';
 
@@ -26,7 +26,8 @@ export const AdminProducts: React.FC = () => {
     fetchProductsAction,
     toggleProductOfferAction,
     updateProductNameAction,
-    deleteProductAction
+    deleteProductAction,
+    updateProductImageAction
   } = useProductContext();
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
@@ -42,6 +43,8 @@ export const AdminProducts: React.FC = () => {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [newProductOffer, setNewProductOffer] = useState(false);
   const [deleteModalProductId, setDeleteModalProductId] = useState<string | null>(null);
+  const [editingImageId, setEditingImageId] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -140,6 +143,27 @@ export const AdminProducts: React.FC = () => {
     setDeleteModalProductId(null);
   };
 
+  const handleUpdateProductImage = (productId: string) => {
+    if (newProductImage) {
+      updateProductImageAction(productId, newProductImage);
+      setEditingImageId(null);
+      setNewProductImage(null);
+      setImagePreview(null);
+    }
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNewProductImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const filteredProducts = useMemo(() => {
     return state.products.filter((product) => 
       (selectedCategory === null || product.category === selectedCategory) &&
@@ -199,8 +223,60 @@ export const AdminProducts: React.FC = () => {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className={clsx("border rounded p-2", product.active ? 'bg-white' : 'bg-gray-200', "flex flex-col")}
+              className={clsx("border rounded p-2", product.active ? 'bg-white' : 'bg-gray-200', "flex flex-col relative")}
             >
+              {editingImageId === product.id ? (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                  <div className="bg-white rounded-lg p-6 w-96 max-w-md">
+                    <h2 className="text-xl font-bold mb-4">Editar Imagen del Producto</h2>
+                    
+                    <div className="mb-4 flex justify-center">
+                      {imagePreview ? (
+                        <img 
+                          src={imagePreview} 
+                          alt="Vista previa" 
+                          className="max-h-48 object-contain rounded"
+                        />
+                      ) : (
+                        <div className="h-48 w-full flex items-center justify-center border-2 border-dashed text-gray-400">
+                          Sin imagen seleccionada
+                        </div>
+                      )}
+                    </div>
+                    
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="w-full mb-4 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+                    
+                    <div className="flex justify-end space-x-2">
+                      <button 
+                        onClick={() => {
+                          setEditingImageId(null);
+                          setNewProductImage(null);
+                          setImagePreview(null);
+                        }}
+                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        onClick={() => handleUpdateProductImage(editingImageId)}
+                        disabled={!newProductImage}
+                        className={`px-4 py-2 rounded ${
+                          newProductImage 
+                            ? 'bg-green-500 text-white hover:bg-green-600' 
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        Guardar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
               <div className="mb-2 flex justify-center items-center h-32 w-full">
                 {product.image && (
                   <img 
@@ -210,6 +286,12 @@ export const AdminProducts: React.FC = () => {
                   />
                 )}
               </div>
+              <button 
+                onClick={() => setEditingImageId(product.id)}
+                className="absolute top-2 right-2 bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600"
+              >
+                <PencilIcon className="h-4 w-4" />
+              </button>
               <div className="flex justify-between items-center mb-2">
                 <div className="flex space-x-2">
                   <button
