@@ -5,7 +5,6 @@ import { Product } from '../types';
 import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useProductContext, safeToast } from '../context/ProductContext';
 import { addNewProduct, deleteProduct, updateProductImage } from '../data/api';
-import  AnalyticsWidget from '../components/AnalyticsWidget';
 import clsx from 'clsx';
 
 const toastConfig: ToastOptions = {
@@ -177,7 +176,6 @@ export const AdminProducts: React.FC = () => {
   
   return (
     <div className="container mx-auto p-4 sm:p-6">
-       <AnalyticsWidget />
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
         Administración de Productos
       </h1>
