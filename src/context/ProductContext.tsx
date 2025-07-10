@@ -5,22 +5,23 @@ import React, {
   useContext,
   Dispatch,
   useCallback,
+  useRef,
 } from 'react';
 import { Product } from '../types';
 import {
   fetchProducts,
   updateProduct,
-  addProduct,
   deleteProduct,
   updateProductImage,
 } from '../data/api';
-import { toast, Id, ToastOptions } from 'react-toastify';
+import { toast, ToastOptions } from 'react-toastify';
 
 // Define el tipo de estado
 interface ProductState {
   products: Product[];
   loading: boolean;
   error: string | null;
+  initialized: boolean;
 }
 
 // Define los tipos de acciones
@@ -55,6 +56,7 @@ const initialState: ProductState = {
   products: [],
   loading: false,
   error: null,
+  initialized: false,
 };
 
 // Reducer
@@ -63,7 +65,7 @@ function productReducer(state: ProductState, action: ProductAction): ProductStat
     case 'FETCH_PRODUCTS_START':
       return { ...state, loading: true, error: null };
     case 'FETCH_PRODUCTS_SUCCESS':
-      return { ...state, products: action.payload, loading: false, error: null };
+      return { ...state, products: action.payload, loading: false, error: null, initialized: true };
     case 'FETCH_PRODUCTS_FAILURE':
       return { ...state, loading: false, error: action.payload };
     case 'ADD_PRODUCT':
@@ -141,20 +143,38 @@ export const ProductContext = createContext<ProductContextType | undefined>(
 // Proveedor del contexto
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(productReducer, initialState);
+  const fetchPromiseRef = useRef<Promise<void> | null>(null);
 
   const fetchProductsAction = useCallback(async () => {
-    // Always fetch products and show loading state
-    dispatch({ type: 'FETCH_PRODUCTS_START' });
-    try {
-      const products = await fetchProducts();
-      dispatch({ type: 'FETCH_PRODUCTS_SUCCESS', payload: products });
-    } catch (error) {
-      dispatch({ 
-        type: 'FETCH_PRODUCTS_FAILURE', 
-        payload: error instanceof Error ? error.message : 'Error desconocido' 
-      });
+    // Only fetch if not already initialized or if products are empty
+    if (state.initialized && state.products.length > 0) {
+      return;
     }
-  }, []);
+    
+    // If there's already a fetch in progress, return the existing promise
+    if (fetchPromiseRef.current) {
+      return fetchPromiseRef.current;
+    }
+    
+    // Create a new fetch promise
+    fetchPromiseRef.current = (async () => {
+      dispatch({ type: 'FETCH_PRODUCTS_START' });
+      
+      try {
+        const products = await fetchProducts();
+        dispatch({ type: 'FETCH_PRODUCTS_SUCCESS', payload: products });
+      } catch (error) {
+        dispatch({ 
+          type: 'FETCH_PRODUCTS_FAILURE', 
+          payload: error instanceof Error ? error.message : 'Error desconocido' 
+        });
+      } finally {
+        fetchPromiseRef.current = null;
+      }
+    })();
+    
+    return fetchPromiseRef.current;
+  }, [state.initialized, state.products.length]);
 
   const toggleProductStatusAction = useCallback(async (productId: string) => {
     try {
