@@ -140,7 +140,7 @@ const App: React.FC = () => {
           
           <div className="flex-1 justify-center items-center max-w-xl mx-4 md:mr-24">
             {showSearch && (
-              <div className="relative pr-16 md:pr-0">
+              <div className="relative md:pr-0">
                 <input
                   type="text"
                   placeholder="Buscar productos, ofertas..."
