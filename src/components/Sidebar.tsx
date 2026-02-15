@@ -32,9 +32,8 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-2xl transform transition-all duration-300 ease-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-2xl transform transition-all duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Header del sidebar */}
@@ -44,8 +43,8 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
                 <h2 className="text-2xl font-bold font-lobster tracking-wide">Menú</h2>
                 <p className="text-white/90 text-sm mt-1">{STORE_CONFIG.name}</p>
               </div>
-              <button 
-                onClick={onClose} 
+              <button
+                onClick={onClose}
                 className="p-2 hover:bg-white/20 rounded-xl transition-colors duration-200"
               >
                 <X className="w-6 h-6" />
@@ -104,9 +103,8 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
                   </button>
 
                   {/* Categories dropdown */}
-                  <div className={`overflow-hidden transition-all duration-300 ease-out ${
-                    isProductsOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                  }`}>
+                  <div className={`overflow-hidden transition-all duration-300 ease-out ${isProductsOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                    }`}>
                     <div className="pl-4 pr-2 py-2 space-y-1">
                       {categories.map((category) => (
                         <button
@@ -115,11 +113,10 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
                             onCategorySelect(category.name === 'Todos' ? null : category.name);
                             onClose();
                           }}
-                          className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 text-left hover:bg-red-50 group ${
-                            category.name === 'Ofertas' 
-                              ? 'text-red-600 bg-red-50 font-semibold' 
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 text-left hover:bg-red-50 group ${category.name === 'Ofertas'
+                              ? 'text-red-600 bg-red-50 font-semibold'
                               : 'text-gray-600 hover:text-red-600'
-                          }`}
+                            }`}
                         >
                           <span className="text-lg group-hover:scale-110 transition-transform">
                             {category.icon}
@@ -157,8 +154,8 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
               <p className="text-sm text-gray-600 font-medium">Síguenos en</p>
             </div>
             <div className="flex justify-center space-x-4">
-              <a 
-                href={STORE_CONFIG.social.instagram.url} 
+              <a
+                href={STORE_CONFIG.social.instagram.url}
                 className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-200 shadow-medium"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -166,8 +163,8 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
                 <Instagram className="w-4 h-4" />
                 <span className="text-sm font-medium">Instagram</span>
               </a>
-              <a 
-                href={STORE_CONFIG.social.facebook.url} 
+              <a
+                href={STORE_CONFIG.social.facebook.url}
                 className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-200 shadow-medium"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -176,12 +173,12 @@ export function Sidebar({ isOpen, onClose, onCategorySelect }: SidebarProps) {
                 <span className="text-sm font-medium">Facebook</span>
               </a>
             </div>
-            
+
             {/* Info adicional */}
             <div className="mt-4 pt-4 border-t border-gray-200">
               <p className="text-xs text-gray-500 text-center leading-relaxed">
                 <span className="font-medium">Horarios:</span><br />
-                {STORE_CONFIG.hours.weekdays.days}: {STORE_CONFIG.hours.weekdays.morning} / {STORE_CONFIG.hours.weekdays.afternoon}<br />
+                {STORE_CONFIG.hours.weekdays.days}: {STORE_CONFIG.hours.weekdays.morning} / {STORE_CONFIG.hours.weekdays.afternoon ? STORE_CONFIG.hours.weekdays.afternoon : ""}<br />
                 {STORE_CONFIG.hours.weekend.days}: {STORE_CONFIG.hours.weekend.hours}
               </p>
             </div>

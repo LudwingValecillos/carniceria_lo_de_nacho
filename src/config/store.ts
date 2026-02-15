@@ -2,8 +2,8 @@ export const STORE_CONFIG = {
   // Información básica de la carnicería
   name: "Carnicería Lo De Nacho",
   tagline: "Los mejores cortes de carne fresca y de alta calidad",
-  description: "Más de 20 años ofreciendo los mejores cortes de carne fresca y de alta calidad para tu hogar.",
-  
+  description: "Más de 5 años ofreciendo los mejores cortes de carne fresca y de alta calidad para tu hogar.",
+
   // Información de contacto
   contact: {
     phone: "11 6145-0595",
@@ -11,7 +11,7 @@ export const STORE_CONFIG = {
     location: "Buenos Aires, Argentina",
     delivery: "Envíos gratis a toda la zona",
   },
-  
+
   // Redes sociales
   social: {
     instagram: {
@@ -27,20 +27,20 @@ export const STORE_CONFIG = {
       message: "Hola, me gustaría hacer un pedido."
     }
   },
-  
+
   // Horarios de atención
   hours: {
     weekdays: {
       days: "Lunes a Sábado",
-      morning: "9:00 - 13:00",
-      afternoon: "17:00 - 21:00"
+      morning: "9:00 - 21:00",
+      // afternoon: "17:00 - 21:00"
     },
     weekend: {
-      days: "Domingos",
-      hours: "9:00 - 13:00"
+      days: "Domingos y feriados",
+      hours: "9:00 - 13:30"
     }
   },
-  
+
   // Configuración del carrito
   cart: {
     defaultQuantity: 1,
@@ -49,7 +49,7 @@ export const STORE_CONFIG = {
     currencySymbol: "$",
     deliveryMessage: "Envíos gratis a toda la zona"
   },
-  
+
   // Mensajes del sistema
   messages: {
     loading: {
@@ -76,7 +76,7 @@ export const STORE_CONFIG = {
       subtitle: "Error al cargar los productos"
     }
   },
-  
+
   // Configuración de categorías
   categories: [
     { name: 'Todos', icon: '🛒', key: 'todos' },
@@ -91,35 +91,35 @@ export const STORE_CONFIG = {
     { name: 'Carbon', icon: '🔥', key: 'carbon' },
     { name: 'Bebidas', icon: '🥤', key: 'bebidas' },
   ],
-  
+
   // Configuración de métodos de pago
   paymentMethods: [
-    { 
-      value: 'cash', 
-      label: 'Efectivo', 
+    {
+      value: 'cash',
+      label: 'Efectivo',
       desc: 'Pago al recibir',
       icon: '💵'
     },
-    { 
-      value: 'card', 
-      label: 'Tarjeta', 
+    {
+      value: 'card',
+      label: 'Tarjeta',
       desc: 'Débito/Crédito',
       icon: '💳'
     },
-    { 
-      value: 'transfer', 
-      label: 'Transferencia', 
+    {
+      value: 'transfer',
+      label: 'Transferencia',
       desc: 'Bancaria',
       icon: '🏦'
     },
-    { 
-      value: 'mercadopago', 
-      label: 'MercadoPago', 
+    {
+      value: 'mercadopago',
+      label: 'MercadoPago',
       desc: 'Digital',
       icon: '📱'
     }
   ],
-  
+
   // Configuración de SEO y meta
   seo: {
     title: "Carnicería Lo De Nacho - Los mejores cortes de carne fresca",
