@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { ToastOptions } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Product } from '../types';
-import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { PencilIcon, MagnifyingGlassIcon, SparklesIcon, PlusIcon, TrashIcon, ChartBarIcon, BoltIcon } from '@heroicons/react/24/solid';
 import { useProductContext, safeToast } from '../context/ProductContext';
 import { addNewProduct, deleteProduct, updateProductImage } from '../data/api';
 import clsx from 'clsx';
@@ -179,8 +179,8 @@ export const AdminProducts: React.FC = () => {
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
         Administración de Productos
       </h1>
-      <div className="mb-4 flex items-center space-x-4">
-        <div className="relative w-full max-w-md">
+      <div className="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+        <div className="relative w-full sm:max-w-md">
           <input
             type="text"
             placeholder="Buscar productos..."
@@ -190,11 +190,11 @@ export const AdminProducts: React.FC = () => {
           />
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
         </div>
-        <div className="relative">
+        <div className="relative w-full sm:w-auto">
           <select
             value={selectedCategory || ''}
             onChange={(e) => setSelectedCategory(e.target.value || null)}
-            className="w-full  py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-3 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Todos</option>
             {[
@@ -212,6 +212,32 @@ export const AdminProducts: React.FC = () => {
               </option>
             ))}
           </select>
+        </div>
+        
+        {/* Google Analytics Buttons */}
+        <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
+          <a
+            href="https://analytics.google.com/analytics/web/#/a384677720p524806399/reports/dashboard?params=_u..nav%3Dmaui%26_u..comparisons%3D%5B%7B%22savedComparisonId%22:%2213612274593%22,%22name%22:%22Todos%20los%20usuarios%22,%22isEnabled%22:true,%22filters%22:%5B%5D,%22systemDefinedSavedComparisonType%22:8,%22isSystemDefined%22:true%7D,%7B%22name%22:%22Ciudad%20coincide%20exactamente%20con%20Del%20Viso%22,%22isEnabled%22:true,%22filters%22:%5B%7B%22expression%22:%22Del%20Viso%22,%22fieldName%22:%22city%22%7D%5D%7D%5D%26_u.dateOption%3Dlast30Days%26_u.comparisonOption%3Ddisabled&collectionId=business-objectives&ruid=business-objectives-raise-brand-awareness-overview,business-objectives,raise-brand-awareness&r=business-objectives-raise-brand-awareness-overview"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all shadow-sm hover:shadow-md"
+            title="Ver informes y tráfico web"
+          >
+            <ChartBarIcon className="h-5 w-5" />
+            <span className="hidden sm:inline">Informes</span>
+            <span className="sm:hidden">Tráfico Web</span>
+          </a>
+          <a
+            href="https://analytics.google.com/analytics/web/#/a384677720p524806399/realtime/pages?params=_u..nav%3Dmaui%26_u..comparisons%3D%5B%7B%22savedComparisonId%22:%2213612274593%22,%22name%22:%22Todos%20los%20usuarios%22,%22isEnabled%22:true,%22filters%22:%5B%5D,%22systemDefinedSavedComparisonType%22:8,%22isSystemDefined%22:true%7D,%7B%22name%22:%22Ciudad%20coincide%20exactamente%20con%20Del%20Viso%22,%22isEnabled%22:true,%22filters%22:%5B%7B%22expression%22:%22Del%20Viso%22,%22fieldName%22:%22city%22%7D%5D%7D%5D%26_u.dateOption%3Dtoday%26_u.comparisonOption%3Ddisabled&collectionId=business-objectives"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg text-sm font-medium hover:from-green-600 hover:to-green-700 transition-all shadow-sm hover:shadow-md"
+            title="Ver métricas en tiempo real (últimos 30 minutos)"
+          >
+            <BoltIcon className="h-5 w-5" />
+            <span className="hidden sm:inline">Tiempo Real</span>
+            <span className="sm:hidden">En Vivo</span>
+          </a>
         </div>
       </div>
       {state.loading ? (
