@@ -125,14 +125,14 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
           style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh' }}
         >
           <div 
-            className="bg-white rounded-xl md:rounded-2xl shadow-2xl w-full max-w-lg max-h-[95vh] md:max-h-[90vh] overflow-hidden animate-scale-in border border-gray-200"
+            className="bg-white rounded-xl md:rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] md:max-h-[90vh] overflow-hidden animate-scale-in border border-gray-200 flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-red-600 to-orange-500 p-6 text-white">
+            {/* Header — altura fija (shrink-0): el contenido scrolleable nunca se la come */}
+            <div className="bg-gradient-to-r from-red-600 to-orange-500 p-4 sm:p-6 text-white shrink-0">
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-2xl font-bold font-lobster">Mi Carrito</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold font-lobster">Mi Carrito</h2>
                   <p className="text-white/90 text-sm">
                     {items.length} {items.length === 1 ? 'producto' : 'productos'}
                   </p>
@@ -148,9 +148,9 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
             </div>
 
             {!showCustomerForm ? (
-              <div className="flex flex-col h-[calc(95vh-9rem)] md:h-[calc(90vh-8rem)]">
-                {/* Cart Items */}
-                <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex flex-col flex-1 min-h-0">
+                {/* Cart Items — única zona que scrollea */}
+                <div className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6">
                   {items.length === 0 ? (
                     <div className="text-center py-16">
                       <div className="mb-6">
@@ -235,9 +235,9 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
                   )}
                 </div>
 
-                {/* Footer with Total and Checkout */}
+                {/* Footer with Total and Checkout — fijo, siempre visible */}
                 {items.length > 0 && (
-                  <div className="border-t border-gray-200 p-6 bg-gray-50">
+                  <div className="border-t border-gray-200 p-4 sm:p-6 bg-gray-50 shrink-0">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-lg font-semibold text-gray-700">Total:</span>
                       <span className="text-2xl font-bold text-red-600">
@@ -255,20 +255,25 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
                 )}
               </div>
             ) : (
-              /* Customer Information Form */
-              <div className="p-6">
-                <div className="mb-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">Información de Contacto</h3>
-                  <p className="text-gray-600 text-sm">Completa tus datos para finalizar el pedido</p>
-                </div>
-                
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleWhatsAppOrder();
-                  }}
-                  className="space-y-6"
-                >
+              /* Customer Information Form — mismo patrón que la lista: header fijo (arriba,
+                 ya renderizado), campos con scroll propio, botones fijos abajo. Antes este
+                 formulario era un div suelto sin límite de altura ni scroll: cuando crecía
+                 (p. ej. al mostrar las 4 opciones de pago), el contenido que no entraba quedaba
+                 recortado por el overflow-hidden del modal y los botones "Volver"/"Enviar
+                 Pedido" quedaban inalcanzables. */
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleWhatsAppOrder();
+                }}
+                className="flex flex-col flex-1 min-h-0"
+              >
+                <div className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 space-y-5 sm:space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Información de Contacto</h3>
+                    <p className="text-gray-600 text-sm">Completa tus datos para finalizar el pedido</p>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Nombre completo *
@@ -330,12 +335,12 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
                             type="radio"
                             value={method.value}
                             checked={customerInfo.paymentMethod === method.value}
-                                                         onChange={(e) =>
-                               setCustomerInfo({
-                                 ...customerInfo,
-                                 paymentMethod: e.target.value as 'cash' | 'card' | 'transfer' | 'mercadopago',
-                               })
-                             }
+                            onChange={(e) =>
+                              setCustomerInfo({
+                                ...customerInfo,
+                                paymentMethod: e.target.value as 'cash' | 'card' | 'transfer' | 'mercadopago',
+                              })
+                            }
                             className="sr-only"
                           />
                           <div className="flex items-center gap-3">
@@ -349,27 +354,29 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
                       ))}
                     </div>
                   </div>
+                </div>
 
-                  <div className="pt-4 border-t border-gray-200">
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setShowCustomerForm(false)}
-                        className="flex-1 bg-white border-2 border-red-600 text-red-600 hover:bg-red-50 py-2 px-4 rounded-xl font-semibold transition-all duration-200"
-                      >
-                        Volver
-                      </button>
-                      <button
-                        type="submit"
-                        className="flex-1 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white py-2 px-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2"
-                      >
-                        <Send className="w-4 h-4" />
-                        Enviar Pedido
-                      </button>
-                    </div>
+                {/* Botones — fuera de la zona con scroll: quedan siempre visibles,
+                    sin importar cuánto crezca el formulario arriba (mobile incluido) */}
+                <div className="shrink-0 border-t border-gray-200 p-4 sm:p-6">
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomerForm(false)}
+                      className="flex-1 bg-white border-2 border-red-600 text-red-600 hover:bg-red-50 py-2 px-4 rounded-xl font-semibold transition-all duration-200"
+                    >
+                      Volver
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white py-2 px-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      Enviar Pedido
+                    </button>
                   </div>
-                </form>
-              </div>
+                </div>
+              </form>
             )}
           </div>
         </div>,
